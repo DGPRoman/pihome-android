@@ -42,7 +42,8 @@ import org.robolectric.RuntimeEnvironment
 data class Words(
     val notConnected: String,
     val house: String,
-    val connectedTo: String,
+    /** What the house says when the hub has no relays, as the fake hub has none. */
+    val noRelays: String,
     val account: String,
     val hub: String,
     val signOut: String,
@@ -56,7 +57,7 @@ private val ENGLISH =
     Words(
         notConnected = "Not connected to a hub yet",
         house = "House",
-        connectedTo = "Connected to",
+        noRelays = "No relays are set up on the hub.",
         account = "Account",
         hub = "Hub",
         signOut = "Sign out",
@@ -70,7 +71,7 @@ private val UKRAINIAN =
     Words(
         notConnected = "Ще не підключено до хаба",
         house = "Будинок",
-        connectedTo = "Підключено до",
+        noRelays = "На хабі не налаштовано жодного реле.",
         account = "Акаунт",
         hub = "Хаб",
         signOut = "Вийти",
@@ -156,7 +157,7 @@ class ShellTest(
         show()
 
         waitFor(words.house)
-        compose.onNodeWithText("${words.connectedTo} ${HOME.address.origin}").assertIsDisplayed()
+        waitFor(words.noRelays)
 
         compose.onNodeWithContentDescription(words.account).performClick()
         waitFor(words.hub)
@@ -180,12 +181,12 @@ class ShellTest(
         compose.onNodeWithContentDescription(words.account).performClick()
         waitFor(words.signOut)
         compose.onNodeWithContentDescription(words.back).performClick()
-        waitFor(words.connectedTo)
+        waitFor(words.noRelays)
 
         compose.onNodeWithContentDescription(words.account).performClick()
         waitFor(words.signOut)
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
-        waitFor(words.connectedTo)
+        waitFor(words.noRelays)
     }
 
     @Test
