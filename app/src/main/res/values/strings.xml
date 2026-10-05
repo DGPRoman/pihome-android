@@ -4,7 +4,67 @@
 
     <!-- Signed out -->
     <string name="not_connected">Not connected to a hub yet</string>
-    <string name="welcome_body">To connect this phone, ask whoever looks after your hub for an invitation.</string>
+    <string name="welcome_body">Ask whoever looks after your hub for an invitation, and scan its code with this phone.</string>
+
+    <!-- Signed out: the ways in -->
+    <string name="scan_invitation">Scan an invitation</string>
+    <string name="paste_invitation">Paste an invitation link</string>
+    <string name="log_in_with_password">Log in with a password</string>
+    <string name="scan_unavailable">This phone cannot scan codes right now. Paste the invitation link instead.</string>
+    <string name="not_an_invitation">That is not an invitation to a hub. Ask for the code or the link again.</string>
+
+    <!-- Pasting an invitation link -->
+    <string name="paste_title">Paste an invitation</string>
+    <string name="invitation_link">Invitation link</string>
+    <string name="paste_blank">Paste the link from your invitation.</string>
+    <string name="continue_button">Continue</string>
+
+    <!-- What is wrong with an address, typed or inside a link -->
+    <string name="address_blank">Enter the hub\'s address.</string>
+    <string name="address_invalid">That is not an address. It looks like hub.local:5002.</string>
+    <string name="address_not_http">A hub\'s address starts with http:// or https://.</string>
+    <string name="address_more">Only the hub\'s address, with nothing after it.</string>
+    <string name="address_public_http">Plain http:// is only for addresses on your home network. Use https:// for this one.</string>
+
+    <!-- Reaching a hub -->
+    <string name="checking_hub">Checking the hub…</string>
+    <string name="try_again">Try again</string>
+    <string name="error_offline">The hub did not answer. Check the address, and that this phone is on the same network as the hub.</string>
+    <string name="error_timeout">The hub did not answer in time. Try again in a moment.</string>
+    <string name="error_insecure">This address leads outside your home network, where plain http:// is not safe. Use https:// for it.</string>
+    <string name="error_not_the_hub">Something answered that is not a hub. Check the address, and whether this Wi-Fi wants you to sign in first.</string>
+    <string name="error_rate_limited">The hub is refusing further attempts for now. Wait a few minutes.</string>
+    <string name="error_server">The hub failed while handling that. Try again later.</string>
+    <string name="error_other">Something went wrong while talking to the hub. Try again.</string>
+
+    <!-- Leave to reach the local network (Android 17 and later) -->
+    <string name="permission_title">Access to your home network</string>
+    <string name="permission_body">Your hub is on the network this phone is connected to. Android asks before an app reaches devices there, so it will ask you next.</string>
+    <string name="permission_refused">Without access to devices on your network, this app cannot reach your hub. Allow it in this app\'s permissions in the settings.</string>
+    <string name="permission_ask_again">Ask again</string>
+    <string name="open_settings">Open settings</string>
+
+    <!-- Joining with an invitation -->
+    <string name="join_title">Join a hub</string>
+    <!-- %1$s is the hub's address, such as http://hub.local:5002 -->
+    <string name="join_body">This invitation connects this phone to the hub at %1$s. It works once.</string>
+    <string name="join_button">Join</string>
+    <string name="joining">Joining…</string>
+    <string name="join_expired">This invitation is more than 15 minutes old, so it has run out. Ask whoever sent it for a new one.</string>
+    <string name="join_refused">This invitation does not work any more. Ask whoever sent it for a new one.</string>
+    <string name="join_lost">No usable answer came back, so the invitation may already have been used. Ask whoever sent it for a new one.</string>
+    <string name="back_to_start">Back to start</string>
+
+    <!-- Logging in with a password -->
+    <string name="log_in_title">Log in</string>
+    <string name="hub_address">Hub address</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="log_in_button">Log in</string>
+    <string name="logging_in">Checking the password…</string>
+    <string name="no_username">Enter your username.</string>
+    <string name="no_password">Enter your password.</string>
+    <string name="log_in_refused">The hub did not accept that username and password.</string>
 
     <!-- The house -->
     <string name="house_title">House</string>
@@ -14,6 +74,17 @@
     <!-- Account -->
     <string name="account_title">Account</string>
     <string name="account_hub">Hub</string>
+    <string name="account_name">Name</string>
+    <string name="account_role">Role</string>
+    <string name="role_admin">Admin</string>
+    <string name="role_operator">Operator</string>
+    <string name="role_viewer">Viewer</string>
+    <string name="account_session_ends">Session ends</string>
+    <string name="session_ends_today">It ends within a day. Opening the app on your home network renews it.</string>
+    <plurals name="session_ends_in_days">
+        <item quantity="one">It ends in %d day. Opening the app on your home network renews it.</item>
+        <item quantity="other">It ends in %d days. Opening the app on your home network renews it.</item>
+    </plurals>
     <string name="account_version">App version</string>
     <string name="sign_out">Sign out</string>
 

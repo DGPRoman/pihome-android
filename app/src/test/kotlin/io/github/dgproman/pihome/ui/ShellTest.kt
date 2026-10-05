@@ -10,7 +10,12 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import io.github.dgproman.pihome.AppGraph
+import io.github.dgproman.pihome.FakeHubs
+import io.github.dgproman.pihome.FakeLocalNetwork
+import io.github.dgproman.pihome.FakeScanner
+import io.github.dgproman.pihome.TestClock
 import io.github.dgproman.pihome.session.FakeCipher
 import io.github.dgproman.pihome.session.HOME
 import io.github.dgproman.pihome.session.SessionStore
@@ -42,6 +47,7 @@ data class Words(
     val account: String,
     val hub: String,
     val signOut: String,
+    val operator: String,
     val back: String,
     val ended: String,
     val ok: String,
@@ -55,6 +61,7 @@ private val ENGLISH =
         account = "Account",
         hub = "Hub",
         signOut = "Sign out",
+        operator = "Operator",
         back = "Back",
         ended = "Your session has ended",
         ok = "OK",
@@ -68,6 +75,7 @@ private val UKRAINIAN =
         account = "Акаунт",
         hub = "Хаб",
         signOut = "Вийти",
+        operator = "Оператор",
         back = "Назад",
         ended = "Сеанс завершено",
         ok = "Зрозуміло",
@@ -107,6 +115,7 @@ class ShellTest(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val store by lazy { SessionStore(folder.sessionData(), FakeCipher()) }
+    private val hubs = FakeHubs()
     private val night get() = "night" in qualifiers
 
     @After
@@ -115,7 +124,7 @@ class ShellTest(
     }
 
     private fun show() {
-        val graph = AppGraph(store, scope)
+        val graph = AppGraph(store, scope, hubs, FakeLocalNetwork(), FakeScanner(), TestClock())
         var surface = Color.Unspecified
         compose.setContent {
             PihomeTheme {
@@ -148,16 +157,19 @@ class ShellTest(
         show()
 
         waitFor(words.house)
-        compose.onNodeWithText("${words.connectedTo} ${HOME.hub}").assertIsDisplayed()
+        compose.onNodeWithText("${words.connectedTo} ${HOME.address.origin}").assertIsDisplayed()
 
         compose.onNodeWithContentDescription(words.account).performClick()
         waitFor(words.hub)
-        compose.onNodeWithText(HOME.hub).assertIsDisplayed()
+        compose.onNodeWithText(HOME.address.origin).assertIsDisplayed()
+        compose.onNodeWithText(HOME.session.username).assertIsDisplayed()
+        compose.onNodeWithText(words.operator).assertIsDisplayed()
         compose.onNodeWithText("0.1.0").assertIsDisplayed()
 
-        compose.onNodeWithText(words.signOut).performClick()
+        compose.onNodeWithText(words.signOut).performScrollTo().performClick()
         waitFor(words.notConnected)
         assertNull(runBlocking { store.read() })
+        compose.waitUntil(timeoutMillis = 5_000) { "logout ${HOME.address}" in hubs.calls }
     }
 
     @Test

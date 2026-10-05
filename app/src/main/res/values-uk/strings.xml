@@ -2,7 +2,66 @@
 <resources>
     <!-- Signed out -->
     <string name="not_connected">Ще не підключено до хаба</string>
-    <string name="welcome_body">Щоб підключити цей телефон, попросіть запрошення в того, хто доглядає за вашим хабом.</string>
+    <string name="welcome_body">Попросіть запрошення в того, хто доглядає за вашим хабом, і відскануйте його код цим телефоном.</string>
+
+    <!-- Signed out: the ways in -->
+    <string name="scan_invitation">Сканувати запрошення</string>
+    <string name="paste_invitation">Вставити посилання-запрошення</string>
+    <string name="log_in_with_password">Увійти з паролем</string>
+    <string name="scan_unavailable">Цей телефон зараз не може сканувати коди. Вставте посилання-запрошення.</string>
+    <string name="not_an_invitation">Це не запрошення до хаба. Попросіть код або посилання ще раз.</string>
+
+    <!-- Pasting an invitation link -->
+    <string name="paste_title">Вставити запрошення</string>
+    <string name="invitation_link">Посилання-запрошення</string>
+    <string name="paste_blank">Вставте посилання із запрошення.</string>
+    <string name="continue_button">Далі</string>
+
+    <!-- What is wrong with an address, typed or inside a link -->
+    <string name="address_blank">Введіть адресу хаба.</string>
+    <string name="address_invalid">Це не адреса. Вона має вигляд hub.local:5002.</string>
+    <string name="address_not_http">Адреса хаба починається з http:// або https://.</string>
+    <string name="address_more">Лише адреса хаба, без нічого після неї.</string>
+    <string name="address_public_http">Простий http:// — лише для адрес у вашій домашній мережі. Для цієї використайте https://.</string>
+
+    <!-- Reaching a hub -->
+    <string name="checking_hub">Перевіряю хаб…</string>
+    <string name="try_again">Спробувати ще</string>
+    <string name="error_offline">Хаб не відповів. Перевірте адресу і чи телефон у тій самій мережі, що й хаб.</string>
+    <string name="error_timeout">Хаб не відповів вчасно. Спробуйте ще раз за мить.</string>
+    <string name="error_insecure">Ця адреса веде за межі домашньої мережі, де простий http:// небезпечний. Використайте https://.</string>
+    <string name="error_not_the_hub">Відповіло щось, що не є хабом. Перевірте адресу і чи ця мережа Wi-Fi не просить спершу увійти.</string>
+    <string name="error_rate_limited">Хаб поки що відхиляє нові спроби. Зачекайте кілька хвилин.</string>
+    <string name="error_server">Хаб дав збій, виконуючи це. Спробуйте пізніше.</string>
+    <string name="error_other">Щось пішло не так під час зв’язку з хабом. Спробуйте ще раз.</string>
+
+    <!-- Leave to reach the local network (Android 17 and later) -->
+    <string name="permission_title">Доступ до домашньої мережі</string>
+    <string name="permission_body">Ваш хаб у мережі, до якої підключено цей телефон. Android питає, перш ніж застосунок звернеться до пристроїв у ній, тож зараз він запитає вас.</string>
+    <string name="permission_refused">Без доступу до пристроїв у вашій мережі застосунок не дістанеться до хаба. Дозвольте його в дозволах цього застосунку в налаштуваннях.</string>
+    <string name="permission_ask_again">Запитати знову</string>
+    <string name="open_settings">Відкрити налаштування</string>
+
+    <!-- Joining with an invitation -->
+    <string name="join_title">Приєднатися до хаба</string>
+    <string name="join_body">Це запрошення підключає телефон до хаба за адресою %1$s. Воно спрацьовує один раз.</string>
+    <string name="join_button">Приєднатися</string>
+    <string name="joining">Приєдную…</string>
+    <string name="join_expired">Цьому запрошенню понад 15 хвилин, тож воно вже не діє. Попросіть нове в того, хто його надіслав.</string>
+    <string name="join_refused">Це запрошення більше не діє. Попросіть нове в того, хто його надіслав.</string>
+    <string name="join_lost">Відповідь не надійшла, тож запрошення могло вже спрацювати. Попросіть нове в того, хто його надіслав.</string>
+    <string name="back_to_start">На початок</string>
+
+    <!-- Logging in with a password -->
+    <string name="log_in_title">Вхід</string>
+    <string name="hub_address">Адреса хаба</string>
+    <string name="username">Ім’я користувача</string>
+    <string name="password">Пароль</string>
+    <string name="log_in_button">Увійти</string>
+    <string name="logging_in">Перевіряю пароль…</string>
+    <string name="no_username">Введіть ім’я користувача.</string>
+    <string name="no_password">Введіть пароль.</string>
+    <string name="log_in_refused">Хаб не прийняв це ім’я користувача і пароль.</string>
 
     <!-- The house -->
     <string name="house_title">Будинок</string>
@@ -11,6 +70,19 @@
     <!-- Account -->
     <string name="account_title">Акаунт</string>
     <string name="account_hub">Хаб</string>
+    <string name="account_name">Ім’я</string>
+    <string name="account_role">Роль</string>
+    <string name="role_admin">Адміністратор</string>
+    <string name="role_operator">Оператор</string>
+    <string name="role_viewer">Глядач</string>
+    <string name="account_session_ends">Сеанс завершиться</string>
+    <string name="session_ends_today">Він завершиться протягом доби. Відкрийте застосунок у домашній мережі, щоб його продовжити.</string>
+    <plurals name="session_ends_in_days">
+        <item quantity="one">Він завершиться через %d день. Відкрийте застосунок у домашній мережі, щоб його продовжити.</item>
+        <item quantity="few">Він завершиться через %d дні. Відкрийте застосунок у домашній мережі, щоб його продовжити.</item>
+        <item quantity="many">Він завершиться через %d днів. Відкрийте застосунок у домашній мережі, щоб його продовжити.</item>
+        <item quantity="other">Він завершиться через %d дня. Відкрийте застосунок у домашній мережі, щоб його продовжити.</item>
+    </plurals>
     <string name="account_version">Версія застосунку</string>
     <string name="sign_out">Вийти</string>
 

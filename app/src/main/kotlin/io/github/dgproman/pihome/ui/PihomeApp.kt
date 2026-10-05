@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
@@ -16,12 +17,19 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import io.github.dgproman.pihome.AppGraph
+import io.github.dgproman.pihome.connect.JoinViewModel
+import io.github.dgproman.pihome.connect.LogInViewModel
+import io.github.dgproman.pihome.hub.InvitationLink
 import io.github.dgproman.pihome.session.Gate
 import io.github.dgproman.pihome.session.SavedSession
 import io.github.dgproman.pihome.ui.screens.AccountScreen
 import io.github.dgproman.pihome.ui.screens.HouseScreen
+import io.github.dgproman.pihome.ui.screens.JoinScreen
+import io.github.dgproman.pihome.ui.screens.LogInScreen
+import io.github.dgproman.pihome.ui.screens.PasteInvitationScreen
 import io.github.dgproman.pihome.ui.screens.SessionEndedScreen
 import io.github.dgproman.pihome.ui.screens.WelcomeScreen
+import java.time.Instant
 
 /**
  * The whole app: which of its two halves to show, decided by the session gate.
@@ -45,12 +53,14 @@ fun PihomeApp(
         }
 
         Gate.SignedOut -> {
-            SignedOut()
+            SignedOut(graph)
         }
 
+        // Keyed on the token alone: the hub's account of who this is can change
+        // under an open screen without starting the signed-in half over.
         is Gate.SignedIn -> {
-            key(current.session) {
-                SignedIn(current.session, version, onSignOut = { graph.gate.signOut() })
+            key(current.saved.token) {
+                SignedIn(graph, current.saved, version)
             }
         }
 
@@ -60,29 +70,72 @@ fun PihomeApp(
     }
 }
 
+/**
+ * The ways in. Joining or logging in signs the gate in, which replaces all of
+ * this with the signed-in half; nothing here navigates there itself.
+ */
 @Composable
-private fun SignedOut() {
+private fun SignedOut(graph: AppGraph) {
     val backStack = rememberNavBackStack(Welcome)
+    val back: () -> Unit = { backStack.removeLastOrNull() }
+    val join: (InvitationLink) -> Unit = { link -> backStack.add(Join(link, graph.clock.millis())) }
     Navigation(backStack) {
-        entry<Welcome> { WelcomeScreen() }
+        entry<Welcome> {
+            WelcomeScreen(
+                scanner = graph.scanner,
+                onInvitation = join,
+                onPaste = { backStack.add(PasteInvitation) },
+                onLogIn = { backStack.add(LogIn) },
+            )
+        }
+        entry<PasteInvitation> {
+            PasteInvitationScreen(
+                onBack = back,
+                // In place of this screen, so going back from the invitation is the start.
+                onInvitation = { link ->
+                    backStack.removeLastOrNull()
+                    join(link)
+                },
+            )
+        }
+        entry<Join> { key ->
+            val model =
+                viewModel {
+                    JoinViewModel(
+                        link = key.link,
+                        received = Instant.ofEpochMilli(key.receivedAt),
+                        hubs = graph.hubs,
+                        localNetwork = graph.localNetwork,
+                        gate = graph.gate,
+                        appScope = graph.scope,
+                        clock = graph.clock,
+                    )
+                }
+            JoinScreen(model, onBack = back)
+        }
+        entry<LogIn> {
+            val model = viewModel { LogInViewModel(graph.hubs, graph.localNetwork, graph.gate, graph.scope) }
+            LogInScreen(model, onBack = back)
+        }
     }
 }
 
 @Composable
 private fun SignedIn(
-    session: SavedSession,
+    graph: AppGraph,
+    saved: SavedSession,
     version: String,
-    onSignOut: () -> Unit,
 ) {
     val backStack = rememberNavBackStack(House)
     Navigation(backStack) {
-        entry<House> { HouseScreen(hub = session.hub, onAccount = { backStack.add(Account) }) }
+        entry<House> { HouseScreen(hub = saved.address.origin, onAccount = { backStack.add(Account) }) }
         entry<Account> {
             AccountScreen(
-                hub = session.hub,
+                saved = saved,
                 version = version,
+                clock = graph.clock,
                 onBack = { backStack.removeLastOrNull() },
-                onSignOut = onSignOut,
+                onSignOut = { graph.gate.signOut() },
             )
         }
     }

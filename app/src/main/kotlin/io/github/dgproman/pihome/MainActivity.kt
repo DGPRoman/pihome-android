@@ -8,14 +8,24 @@ import io.github.dgproman.pihome.ui.PihomeApp
 import io.github.dgproman.pihome.ui.theme.PihomeTheme
 
 class MainActivity : ComponentActivity() {
+    private val graph: AppGraph get() = (application as PihomeApplication).graph
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        val graph = (application as PihomeApplication).graph
         setContent {
             PihomeTheme {
                 PihomeApp(graph, version = BuildConfig.VERSION_NAME)
             }
         }
+    }
+
+    /**
+     * Each time the app comes into view, ask the hub whether the session still
+     * stands. From the home network, that is also what renews it.
+     */
+    override fun onStart() {
+        super.onStart()
+        graph.gate.check()
     }
 }

@@ -3,10 +3,17 @@ package io.github.dgproman.pihome.session
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import io.github.dgproman.pihome.hub.HubAddress
+import io.github.dgproman.pihome.hub.Parsed
+import io.github.dgproman.pihome.hub.Role
+import io.github.dgproman.pihome.hub.Session
+import io.github.dgproman.pihome.hub.SessionToken
+import io.github.dgproman.pihome.hub.SignedIn
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.security.GeneralSecurityException
 import java.security.MessageDigest
+import java.time.Instant
 
 /**
  * Stands in for the Android Keystore, which Robolectric does not have.
@@ -43,5 +50,15 @@ fun TemporaryFolder.sessionFile(): File = File(root, "session.preferences_pb")
 
 fun TemporaryFolder.sessionData(): DataStore<Preferences> = PreferenceDataStoreFactory.create { sessionFile() }
 
+fun address(text: String): HubAddress = (HubAddress.parse(text) as Parsed.Valid).value
+
 /** Made up: never a session any hub issued. */
-val HOME = SavedSession(hub = "http://192.168.1.20:5002", token = "test-session-token")
+val HOME =
+    SavedSession(
+        address = address("http://192.168.1.20:5002"),
+        token = SessionToken("test-session-token"),
+        session = Session("olya", Role.OPERATOR, Instant.parse("2026-11-04T12:00:00Z")),
+    )
+
+/** [HOME] as the hub hands it over when it opens. */
+val HOME_OPENED = SignedIn(HOME.session, HOME.token)
