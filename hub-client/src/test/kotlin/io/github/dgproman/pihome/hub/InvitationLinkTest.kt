@@ -139,4 +139,12 @@ class InvitationLinkTest {
             Json.decodeFromString(InvitationLink.serializer(), """{"hub":"http://203.0.113.9","token":"Ab3_-xYz"}""")
         }
     }
+
+    @Test
+    fun `an invitation is passed on as the web client's link, which reads back as itself`() {
+        val link = InvitationLink(HubAddress.parse("http://[fd00::20]:5002").valid(), InvitationToken("Ab3_-xYz"))
+
+        assertEquals("http://[fd00::20]:5002/join#Ab3_-xYz", link.webLink())
+        assertEquals(link, InvitationLink.parse(link.webLink()).valid())
+    }
 }

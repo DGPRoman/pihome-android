@@ -28,6 +28,14 @@ data class InvitationLink(
     val hub: HubAddress,
     val token: InvitationToken,
 ) {
+    /**
+     * The link as the web client builds it, `<hub>/join#<token>`: the form an
+     * invitation is passed on in, which opens the hub's join page anywhere and
+     * this app on a phone that has it. Carries the token, so it is for the
+     * person it is meant for and for nothing that keeps a record.
+     */
+    fun webLink(): String = "${hub.origin}$JOIN_PATH#${token.value}"
+
     companion object {
         fun parse(text: String): Parsed<InvitationLink> {
             val trimmed = text.trim()
@@ -105,6 +113,8 @@ data class InvitationLink(
         /** The scheme of the links the hub's join page hands this app. */
         const val APP_SCHEME = "pihome"
 
-        private val JOIN_PATHS = setOf("/join", "/join/")
+        private const val JOIN_PATH = "/join"
+
+        private val JOIN_PATHS = setOf(JOIN_PATH, "/join/")
     }
 }

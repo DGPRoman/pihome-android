@@ -59,6 +59,17 @@ class HubAddress private constructor(
     /** The name or the address the hub is reached at, IPv6 without its brackets. */
     val host: String get() = root.host
 
+    /**
+     * Whether the address can lead only to this device: `localhost`, or a
+     * loopback address. A hub reached this way is one this device forwards to,
+     * and a link naming it opens nothing anywhere else.
+     */
+    val onlyThisDevice: Boolean
+        get() =
+            host.equals("localhost", ignoreCase = true) ||
+                host.endsWith(".localhost", ignoreCase = true) ||
+                (literalHost(host) as? Literal.Address)?.address?.isLoopbackAddress == true
+
     /** Plain `http://`, which [HomeNetworkDns] holds to the home network. */
     internal val isPlainHttp: Boolean get() = !root.isHttps
 
