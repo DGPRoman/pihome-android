@@ -65,7 +65,9 @@ session on the phone first and then ends it on the hub, so it never waits for a 
 out of reach.
 
 **Nothing leaves the phone.** Cloud backups and device-to-device transfers are off. A new
-phone joins with an invitation of its own rather than inheriting another's session.
+phone joins with an invitation of its own rather than inheriting another's session. The code
+scanner's library would send its usage events to Google; the app removes the backend they go
+through, so they are dropped on the phone, and a test fails if a dependency adds one back.
 
 **One secret, encrypted by the Keystore.** The session token is stored in DataStore encrypted
 with AES-GCM under a key that lives in the Android Keystore and cannot be read out of it, with
