@@ -1,5 +1,6 @@
 package io.github.dgproman.pihome.hub
 
+import okhttp3.Dns
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.UnknownHostException
@@ -105,5 +106,33 @@ class HomeNetworkTest {
 
         val failure = assertFailsWith<UnknownHostException> { dns.lookup("no-such-host.invalid") }
         assertFalse(failure is PlainHttpRefusedException)
+    }
+
+    @Test
+    fun `a hub on the home network needs the local network, and one on this device does not`() {
+        fun reaches(
+            address: String,
+            vararg resolved: String,
+        ): Boolean =
+            HubAddress.parse(address).valid().reachesLocalNetwork { host ->
+                if (resolved.isEmpty()) listOf(InetAddress.getByName(host)) else resolved.map(InetAddress::getByName)
+            }
+
+        assertTrue(reaches("http://192.168.1.20:5002"))
+        assertTrue(reaches("http://[fd00::20]:5002"))
+        assertTrue(reaches("http://100.64.0.5:5002"))
+        assertTrue(reaches("http://hub.local:5002", "192.168.1.20"))
+        assertTrue(reaches("https://hub.example.org", "203.0.113.9", "10.0.0.5"))
+        assertFalse(reaches("http://127.0.0.1:5002"))
+        assertFalse(reaches("http://localhost:5002", "127.0.0.1", "::1"))
+        assertFalse(reaches("https://hub.example.org", "203.0.113.9"))
+    }
+
+    @Test
+    fun `a name that does not resolve is local over plain http only`() {
+        val unknown = Dns { throw UnknownHostException(it) }
+
+        assertTrue(HubAddress.parse("http://hub.local").valid().reachesLocalNetwork(unknown))
+        assertFalse(HubAddress.parse("https://hub.example.org").valid().reachesLocalNetwork(unknown))
     }
 }

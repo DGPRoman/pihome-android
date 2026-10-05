@@ -1,5 +1,13 @@
 package io.github.dgproman.pihome.hub
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.net.InetAddress
@@ -37,13 +45,19 @@ enum class InputProblem {
  * Where a hub is: a scheme, a host and a port, and nothing else.
  *
  * Only made by [parse], so every one in the app has passed its rules. Equal when
- * the origins are, whatever spelling they were typed in.
+ * the origins are, whatever spelling they were typed in. Serialized as its
+ * origin, and read back through [parse], so a stored one is held to the rules
+ * of the build that reads it.
  */
+@Serializable(with = HubAddressSerializer::class)
 class HubAddress private constructor(
     private val root: HttpUrl,
 ) {
     /** `http://host:port`, without a trailing slash, as a person would write it. */
     val origin: String = root.toString().removeSuffix("/")
+
+    /** The name or the address the hub is reached at, IPv6 without its brackets. */
+    val host: String get() = root.host
 
     /** Plain `http://`, which [HomeNetworkDns] holds to the home network. */
     internal val isPlainHttp: Boolean get() = !root.isHttps
@@ -105,6 +119,24 @@ class HubAddress private constructor(
         }
 
         private val SCHEME = Regex("^[A-Za-z][A-Za-z0-9+.-]*://")
+    }
+}
+
+internal object HubAddressSerializer : KSerializer<HubAddress> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("io.github.dgproman.pihome.hub.HubAddress", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): HubAddress =
+        when (val parsed = HubAddress.parse(decoder.decodeString())) {
+            is Parsed.Valid -> parsed.value
+            is Parsed.Invalid -> throw SerializationException("not a hub address: ${parsed.problem}")
+        }
+
+    override fun serialize(
+        encoder: Encoder,
+        value: HubAddress,
+    ) {
+        encoder.encodeString(value.origin)
     }
 }
 

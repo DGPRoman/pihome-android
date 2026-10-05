@@ -1,7 +1,10 @@
 package io.github.dgproman.pihome.hub
 
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class InvitationLinkTest {
     @Test
@@ -72,5 +75,18 @@ class InvitationLinkTest {
         val link = InvitationLink.parse("http://hub.local/join#very-secret").valid()
 
         assertEquals(false, "very-secret" in link.toString())
+    }
+
+    @Test
+    fun `a link survives being saved and read back, and is held to the rules again on the way in`() {
+        val link = InvitationLink.parse("http://hub.local:5002/join#Ab3_-xYz").valid()
+
+        val saved = Json.encodeToString(InvitationLink.serializer(), link)
+
+        assertEquals("""{"hub":"http://hub.local:5002","token":"Ab3_-xYz"}""", saved)
+        assertEquals(link, Json.decodeFromString(InvitationLink.serializer(), saved))
+        assertFailsWith<SerializationException> {
+            Json.decodeFromString(InvitationLink.serializer(), """{"hub":"http://203.0.113.9","token":"Ab3_-xYz"}""")
+        }
     }
 }
