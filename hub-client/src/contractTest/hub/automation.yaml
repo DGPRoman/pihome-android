@@ -1,0 +1,10 @@
+# Not after dark: a rule that fires whatever the time the tests run.
+rules:
+  - id: porch-motion-light
+    when:
+      device: porch-motion
+      motion: true
+    then:
+      relay: gate-light
+      state: on
+      hold_seconds: 600

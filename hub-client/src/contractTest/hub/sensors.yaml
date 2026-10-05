@@ -1,0 +1,4 @@
+devices:
+  - id: porch-motion
+    label: "Porch motion sensor"
+    stale_after_seconds: 300
