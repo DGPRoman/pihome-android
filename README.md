@@ -8,10 +8,11 @@ the relays, what the sensors last reported, whether the hub can still reach its 
 the rules wiring them together — plus what a browser cannot offer, a Quick Settings tile, a
 home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 
-> **Status: connects, shows nothing yet.** A phone joins a hub by opening an invitation, or an
-> admin logs in with a password, and the app keeps that session, checks it with the hub each
-> time it comes into view, and shows who it is and when it ends. The house itself — relays,
-> sensors, devices, rules — is next; see [Roadmap](#roadmap).
+> **Status: shows and switches the house.** A phone joins a hub by opening an invitation, or an
+> admin logs in with a password. The app then shows the relays as switches, what each sensor
+> last reported and how long ago, whether the hub can reach its devices, and the automation
+> rules, read every ten seconds while the screen is open. Managing people, and the tile,
+> widget and shortcuts, are next; see [Roadmap](#roadmap).
 
 ## Design notes
 
@@ -85,6 +86,23 @@ takes every signed-in screen away at once, with whatever it was polling, so noth
 asking the hub with a session it has refused: the hub counts each refusal against the phone's
 address.
 
+**A switch moves when it is pressed, and only the hub moves it back.** A press shows at once
+and is undone if the hub refuses it — but only while the switch still shows that press, so
+an answer that arrives late cannot undo something newer. When the answer is lost rather than
+a refusal, the switch stays where it was pressed and says it is not sure, because the circuit
+may well have switched. A read of the relays that began before a press, or ends during one,
+is dropped, so a poll can never put a switch back. Every press ends with a read of its own.
+
+**Polling costs nothing when nobody is looking.** The house is read every ten seconds while
+its screen is in view and not at all otherwise. The relays are read first, on their own,
+because the hub counts a refused session against the phone's address: an ended session
+costs one refusal, not four. A failed read leaves the last answer on screen, under a note
+saying it is the last one the hub gave.
+
+**Every reading has its own age.** A sensor's "last seen" moves with any reading, so it cannot
+say whether a particular one is current. Each reading is judged by its own time against the
+sensor's window, and one that has no time is neither current nor stale.
+
 **One product with the web client.** Colours come from the web client's design tokens, light
 or dark as the system is set, and not from the wallpaper. The strings are in English and
 Ukrainian, and Android lets the language be chosen for this app alone.
@@ -125,10 +143,12 @@ app/                           the Android application
     │   │   ├── Hubs.kt            where a hub client comes from, one HTTP client for all
     │   │   ├── MainActivity.kt    the one activity
     │   │   ├── connect/           joining, logging in, invitations arriving, the local network
+    │   │   ├── house/             the house as the hub reports it: polling, presses, ages
     │   │   ├── session/           the encrypted session, and the gate above the screens
     │   │   └── ui/
     │   │       ├── PihomeApp.kt   signed out or in, each with its own back stack
     │   │       ├── connect/       what the connecting screens share
+    │   │       ├── house/         relays, sensors, devices and rules on screen
     │   │       ├── screens/       one file per screen
     │   │       └── theme/         colours from the web client's tokens
     │   └── res/                   strings in two languages, icons, backup rules
@@ -158,7 +178,7 @@ gradle/libs.versions.toml      every dependency version, exact
 | 2     | Hub client, tested against recorded replies and a real hub      | #2, #3         | ✅ done    |
 | 3     | App shell: theme, navigation, session storage                   | #4             | ✅ done    |
 | 4     | Connecting: invitation, password, local-network permission      | #5             | ✅ done    |
-| 5     | The house: relays, sensors, devices, rules                      | #6             | planned    |
+| 5     | The house: relays, sensors, devices, rules                      | #6             | ✅ done    |
 | 6     | People and invitations, for an admin                            | #7             | planned    |
 | 7     | Quick Settings tile, home-screen widget, launcher shortcuts     | #8, #9, #10    | planned    |
 | 8     | Signed releases                                                 | #11            | planned    |
