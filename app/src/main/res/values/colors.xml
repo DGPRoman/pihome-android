@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The web client's accent, behind the launcher icon's power glyph. -->
+    <color name="ic_launcher_background">#1B6EF3</color>
+</resources>

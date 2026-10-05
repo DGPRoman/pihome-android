@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: nothing here needs to write to the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, format and types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      # Checks the wrapper JAR against Gradle's published checksums before anything
+      # runs it, which is why there is no separate validation step. The basic cache
+      # keeps CI on open-source code; the default is a commercial component.
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6
+        with:
+          cache-provider: basic
+
+      - name: Format check
+        run: ./gradlew spotlessCheck
+
+      # Lint compiles every module first, so a type error fails here too.
+      - name: Lint
+        run: ./gradlew lint
+
+      - name: Ensure no signing material is tracked
+        # A committed key cannot be un-published, so this is checked on every run
+        # rather than trusting .gitignore to stay correct.
+        run: |
+          tracked="$(git ls-files '*.jks' '*.keystore' 'keystore.properties' 'local.properties')"
+          if [ -n "$tracked" ]; then
+            echo "::error::signing material or a local SDK path is tracked by git:"
+            echo "$tracked"
+            exit 1
+          fi
+          echo "No signing material in the index."
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6
+        with:
+          cache-provider: basic
+
+      # JVM tests, and Compose UI tests on Robolectric: no emulator needed.
+      - name: Test
+        run: ./gradlew test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6
+        with:
+          cache-provider: basic
+
+      # Release as well as debug, unsigned: the release build type is the one that
+      # ships, so it is the one that has to keep building.
+      - name: Build
+        run: ./gradlew assembleDebug assembleRelease
