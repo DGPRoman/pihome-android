@@ -29,6 +29,8 @@ import io.github.dgproman.pihome.R
 import io.github.dgproman.pihome.connect.Incoming
 import io.github.dgproman.pihome.connect.JoinViewModel
 import io.github.dgproman.pihome.connect.LogInViewModel
+import io.github.dgproman.pihome.house.HouseViewModel
+import io.github.dgproman.pihome.house.mayChangeTheHouse
 import io.github.dgproman.pihome.hub.InputProblem
 import io.github.dgproman.pihome.hub.InvitationLink
 import io.github.dgproman.pihome.session.Gate
@@ -167,7 +169,24 @@ private fun SignedIn(
     val backStack = rememberNavBackStack(House)
     IncomingWhileSignedIn(graph, saved)
     Navigation(backStack) {
-        entry<House> { HouseScreen(hub = saved.address.origin, onAccount = { backStack.add(Account) }) }
+        entry<House> {
+            val model =
+                viewModel {
+                    HouseViewModel(
+                        hub = graph.hubs.at(saved.address, saved.token),
+                        clock = graph.clock,
+                        onRefused = { graph.gate.refused(saved.token) },
+                        // The role may have changed since this phone last asked.
+                        onForbidden = { graph.gate.check() },
+                    )
+                }
+            HouseScreen(
+                model = model,
+                mayChange = saved.session.role.mayChangeTheHouse,
+                zone = graph.clock.zone,
+                onAccount = { backStack.add(Account) },
+            )
+        }
         entry<Account> {
             AccountScreen(
                 saved = saved,

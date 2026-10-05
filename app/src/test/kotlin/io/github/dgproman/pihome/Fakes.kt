@@ -29,7 +29,8 @@ fun failure(kind: HubErrorKind): HubException = HubException(kind, "a failure ma
  * Hubs that answer what a test sets, and remember what they were asked.
  *
  * Each answer is a function, so a test can fail it, hold it back, or count it.
- * Only the calls the app makes so far are answered; anything else fails the test.
+ * The house is empty until a test says otherwise. Only the calls the app makes
+ * so far are answered; anything else fails the test.
  */
 class FakeHubs : Hubs {
     var health: suspend (HubAddress) -> Unit = {}
@@ -37,8 +38,14 @@ class FakeHubs : Hubs {
     var logIn: suspend (String, String) -> SignedIn = { _, _ -> throw failure(HubErrorKind.UNAUTHORIZED) }
     var join: suspend (InvitationToken) -> SignedIn = { throw failure(HubErrorKind.UNAUTHORIZED) }
     var logOut: suspend (SessionToken?) -> Unit = {}
+    var relays: suspend () -> List<Relay> = { emptyList() }
+    var setRelay: suspend (String, Boolean) -> Relay = { _, _ -> throw failure(HubErrorKind.NOT_FOUND) }
+    var setAllRelays: suspend (Boolean) -> List<Relay> = { emptyList() }
+    var sensors: suspend () -> List<Sensor> = { emptyList() }
+    var devices: suspend () -> List<Device> = { emptyList() }
+    var rules: suspend () -> List<AutomationRule> = { emptyList() }
 
-    /** Every call, in order, as `what address`. */
+    /** Every call, in order: `what address` for the ways in, and `what` for the house. */
     val calls = mutableListOf<String>()
 
     override fun at(
@@ -76,20 +83,38 @@ class FakeHubs : Hubs {
                 this@FakeHubs.logOut(token)
             }
 
-            override suspend fun relays(): List<Relay> = unexpected()
+            override suspend fun relays(): List<Relay> {
+                calls += "relays"
+                return this@FakeHubs.relays()
+            }
 
             override suspend fun setRelay(
                 id: String,
                 on: Boolean,
-            ): Relay = unexpected()
+            ): Relay {
+                calls += "set $id $on"
+                return this@FakeHubs.setRelay(id, on)
+            }
 
-            override suspend fun setAllRelays(on: Boolean): List<Relay> = unexpected()
+            override suspend fun setAllRelays(on: Boolean): List<Relay> {
+                calls += "set all $on"
+                return this@FakeHubs.setAllRelays(on)
+            }
 
-            override suspend fun sensors(): List<Sensor> = unexpected()
+            override suspend fun sensors(): List<Sensor> {
+                calls += "sensors"
+                return this@FakeHubs.sensors()
+            }
 
-            override suspend fun devices(): List<Device> = unexpected()
+            override suspend fun devices(): List<Device> {
+                calls += "devices"
+                return this@FakeHubs.devices()
+            }
 
-            override suspend fun rules(): List<AutomationRule> = unexpected()
+            override suspend fun rules(): List<AutomationRule> {
+                calls += "rules"
+                return this@FakeHubs.rules()
+            }
 
             override suspend fun accounts(): List<Account> = unexpected()
 

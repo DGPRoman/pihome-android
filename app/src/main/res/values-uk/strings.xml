@@ -70,7 +70,115 @@
 
     <!-- The house -->
     <string name="house_title">Будинок</string>
-    <string name="house_connected">Підключено до %1$s</string>
+    <string name="showing_last">Показано те, що хаб повідомив востаннє.</string>
+
+    <!-- The house: relays -->
+    <string name="relays_title">Реле</string>
+    <string name="relays_loading">Читаю стан реле…</string>
+    <string name="relays_empty">На хабі не налаштовано жодного реле.</string>
+    <string name="relay_on">Увімк.</string>
+    <string name="relay_off">Вимк.</string>
+    <string name="relay_on_unsure">Увімк.?</string>
+    <string name="relay_off_unsure">Вимк.?</string>
+    <string name="relay_probably_on">Увімкнено, не підтверджено</string>
+    <string name="relay_probably_off">Вимкнено, не підтверджено</string>
+    <string name="relay_unconfirmed">Зрозумілої відповіді не прийшло, тож перемикач міг спрацювати. Перевіряю на хабі.</string>
+    <string name="relay_forbidden">Ваш акаунт не може це змінювати.</string>
+    <string name="relay_hold_off">Правило автоматики вимкне його о %1$s.</string>
+    <string name="relay_hold_on">Правило автоматики увімкне його о %1$s.</string>
+    <string name="read_only">Ваш акаунт може переглядати будинок, але не змінювати. Адміністратор може зробити його оператором.</string>
+    <string name="all_off">Вимкнути все</string>
+    <string name="all_off_unconfirmed">Зрозумілої відповіді не прийшло, тож реле, можливо, вже вимкнені. Перевіряю на хабі.</string>
+
+    <!-- The house: sensors -->
+    <string name="sensors_title">Датчики</string>
+    <string name="sensors_loading">Читаю датчики…</string>
+    <string name="sensors_empty">На хабі не налаштовано жодного датчика.</string>
+    <string name="stale">Застаріло</string>
+    <string name="never_reported">Ще не надходило</string>
+    <string name="no_readings">Показів ще немає.</string>
+    <string name="age_unknown">коли — невідомо</string>
+    <string name="last_seen">Останній зв’язок %1$s</string>
+    <string name="motion">Рух</string>
+    <string name="motion_detected">Є</string>
+    <string name="motion_clear">Немає</string>
+    <string name="temperature">Температура</string>
+    <string name="humidity">Вологість</string>
+    <string name="temperature_value">%1$s °C</string>
+    <string name="humidity_value">%1$s %%</string>
+
+    <!-- How long ago -->
+    <string name="just_now">щойно</string>
+    <plurals name="seconds_ago">
+        <item quantity="one">%d секунду тому</item>
+        <item quantity="few">%d секунди тому</item>
+        <item quantity="many">%d секунд тому</item>
+        <item quantity="other">%d секунди тому</item>
+    </plurals>
+    <plurals name="minutes_ago">
+        <item quantity="one">%d хвилину тому</item>
+        <item quantity="few">%d хвилини тому</item>
+        <item quantity="many">%d хвилин тому</item>
+        <item quantity="other">%d хвилини тому</item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="one">%d годину тому</item>
+        <item quantity="few">%d години тому</item>
+        <item quantity="many">%d годин тому</item>
+        <item quantity="other">%d години тому</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d день тому</item>
+        <item quantity="few">%d дні тому</item>
+        <item quantity="many">%d днів тому</item>
+        <item quantity="other">%d дня тому</item>
+    </plurals>
+
+    <!-- The house: devices the hub polls -->
+    <string name="devices_title">Пристрої</string>
+    <string name="devices_loading">Читаю пристрої…</string>
+    <string name="devices_empty">На хабі не налаштовано жодного пристрою.</string>
+    <string name="device_silent">Не відповідає</string>
+    <string name="device_never_announced">Ще не з’являвся</string>
+    <string name="device_not_polled">Ще не опитаний</string>
+    <string name="device_never_announced_body">Його налаштовано на хабі, але він жодного разу не повідомив, де він. Або він не ввімкнений, або не може дістатися до хаба.</string>
+    <string name="device_announced">з’явився %1$s</string>
+    <string name="device_unreachable">Хаб не зміг до нього достукатися.</string>
+    <string name="device_silent_since">Перестав відповідати %1$s.</string>
+    <string name="device_reported">Повідомив %1$s</string>
+    <string name="device_last_answered">Востаннє відповів %1$s</string>
+    <string name="device_reported_unknown">Коли він це повідомив — невідомо.</string>
+
+    <!-- The house: automation rules -->
+    <string name="rules_title">Автоматика</string>
+    <string name="rules_loading">Читаю правила…</string>
+    <string name="rules_empty">На хабі не налаштовано жодного правила автоматики.</string>
+    <string name="rule_disabled">Вимкнено</string>
+    <string name="rule_after_dark">Після смеркання</string>
+    <string name="rule_when_motion">Коли «%1$s» фіксує рух</string>
+    <string name="rule_when_still">Коли «%1$s» не фіксує руху</string>
+    <string name="rule_turn_on">увімкнути «%1$s»</string>
+    <string name="rule_turn_off">вимкнути «%1$s»</string>
+    <string name="rule_sentence">%1$s, %2$s.</string>
+    <string name="rule_sentence_hold">%1$s, %2$s, а через %3$s повернути як було.</string>
+    <plurals name="span_seconds">
+        <item quantity="one">%d секунду</item>
+        <item quantity="few">%d секунди</item>
+        <item quantity="many">%d секунд</item>
+        <item quantity="other">%d секунди</item>
+    </plurals>
+    <plurals name="span_minutes">
+        <item quantity="one">%d хвилину</item>
+        <item quantity="few">%d хвилини</item>
+        <item quantity="many">%d хвилин</item>
+        <item quantity="other">%d хвилини</item>
+    </plurals>
+    <plurals name="span_hours">
+        <item quantity="one">%d годину</item>
+        <item quantity="few">%d години</item>
+        <item quantity="many">%d годин</item>
+        <item quantity="other">%d години</item>
+    </plurals>
 
     <!-- Account -->
     <string name="account_title">Акаунт</string>

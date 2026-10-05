@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +36,10 @@ import io.github.dgproman.pihome.R
  * growing at a readable width, so a tablet held sideways shows a page rather
  * than lines a metre long. The top bar and the column keep clear of the system
  * bars, which the app draws behind.
+ *
+ * Given [onRefresh], pulling the column down asks for it, and [refreshing] shows
+ * that it is under way. A gesture only, so a screen that offers it offers the
+ * same some other way too.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +48,8 @@ fun Screen(
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
+    refreshing: Boolean = false,
+    onRefresh: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Scaffold(
@@ -60,17 +68,25 @@ fun Screen(
             )
         },
     ) { insets ->
-        Box(Modifier.fillMaxSize().padding(insets), contentAlignment = Alignment.TopCenter) {
+        val column: @Composable () -> Unit = {
             Column(
                 modifier =
                     Modifier
                         .widthIn(max = 640.dp)
                         .fillMaxWidth()
+                        // The whole height, so the column can be pulled down from anywhere on it.
+                        .fillMaxHeight()
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 16.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 content = content,
             )
+        }
+        val frame = Modifier.fillMaxSize().padding(insets)
+        if (onRefresh == null) {
+            Box(frame, contentAlignment = Alignment.TopCenter) { column() }
+        } else {
+            PullToRefreshBox(refreshing, onRefresh, frame, contentAlignment = Alignment.TopCenter) { column() }
         }
     }
 }

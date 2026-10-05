@@ -74,8 +74,111 @@
 
     <!-- The house -->
     <string name="house_title">House</string>
-    <!-- %1$s is the hub's address, such as http://hub.local:5002 -->
-    <string name="house_connected">Connected to %1$s</string>
+    <string name="showing_last">Showing what the hub last reported.</string>
+
+    <!-- The house: relays -->
+    <string name="relays_title">Relays</string>
+    <string name="relays_loading">Reading the relays…</string>
+    <string name="relays_empty">No relays are set up on the hub.</string>
+    <string name="relay_on">On</string>
+    <string name="relay_off">Off</string>
+    <!-- The switch was pressed and no usable answer came back: probably on, not confirmed -->
+    <string name="relay_on_unsure">On?</string>
+    <string name="relay_off_unsure">Off?</string>
+    <!-- What a screen reader says of a switch in that state -->
+    <string name="relay_probably_on">On, not confirmed</string>
+    <string name="relay_probably_off">Off, not confirmed</string>
+    <string name="relay_unconfirmed">No usable answer came back, so the switch may have moved. Checking with the hub.</string>
+    <string name="relay_forbidden">Your account may not change this.</string>
+    <!-- %1$s is a time of day, such as 23:15 -->
+    <string name="relay_hold_off">An automation rule switches it off at %1$s.</string>
+    <string name="relay_hold_on">An automation rule switches it on at %1$s.</string>
+    <string name="read_only">Your account can see the house but not change it. An admin can make it an operator.</string>
+    <string name="all_off">All off</string>
+    <string name="all_off_unconfirmed">No usable answer came back, so the relays may already be off. Checking with the hub.</string>
+
+    <!-- The house: sensors -->
+    <string name="sensors_title">Sensors</string>
+    <string name="sensors_loading">Reading the sensors…</string>
+    <string name="sensors_empty">No sensors are set up on the hub.</string>
+    <string name="stale">Stale</string>
+    <string name="never_reported">Never reported</string>
+    <string name="no_readings">No readings yet.</string>
+    <string name="age_unknown">age unknown</string>
+    <!-- %1$s is how long ago, such as "5 minutes ago" -->
+    <string name="last_seen">Last seen %1$s</string>
+    <string name="motion">Motion</string>
+    <string name="motion_detected">Detected</string>
+    <string name="motion_clear">Clear</string>
+    <string name="temperature">Temperature</string>
+    <string name="humidity">Humidity</string>
+    <!-- %1$s is a number, such as 21.5 -->
+    <string name="temperature_value">%1$s °C</string>
+    <string name="humidity_value">%1$s %%</string>
+
+    <!-- How long ago -->
+    <string name="just_now">just now</string>
+    <plurals name="seconds_ago">
+        <item quantity="one">%d second ago</item>
+        <item quantity="other">%d seconds ago</item>
+    </plurals>
+    <plurals name="minutes_ago">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+
+    <!-- The house: devices the hub polls -->
+    <string name="devices_title">Devices</string>
+    <string name="devices_loading">Reading the devices…</string>
+    <string name="devices_empty">No devices are set up on the hub.</string>
+    <string name="device_silent">Not answering</string>
+    <string name="device_never_announced">Never announced</string>
+    <string name="device_not_polled">Not asked yet</string>
+    <string name="device_never_announced_body">It is set up on the hub and has never said where it is. Either it is not switched on, or it cannot reach the hub.</string>
+    <!-- %1$s is how long ago, such as "5 minutes ago" -->
+    <string name="device_announced">announced %1$s</string>
+    <string name="device_unreachable">The hub could not reach it.</string>
+    <string name="device_silent_since">It stopped answering %1$s.</string>
+    <string name="device_reported">Reported %1$s</string>
+    <string name="device_last_answered">Last answered %1$s</string>
+    <string name="device_reported_unknown">When it reported this is not known.</string>
+
+    <!-- The house: automation rules -->
+    <string name="rules_title">Automation</string>
+    <string name="rules_loading">Reading the rules…</string>
+    <string name="rules_empty">No automation rules are set up on the hub.</string>
+    <string name="rule_disabled">Disabled</string>
+    <string name="rule_after_dark">After dark</string>
+    <!-- %1$s is a sensor's name -->
+    <string name="rule_when_motion">When %1$s detects motion</string>
+    <string name="rule_when_still">When %1$s reports no motion</string>
+    <!-- %1$s is a relay's name -->
+    <string name="rule_turn_on">switch on %1$s</string>
+    <string name="rule_turn_off">switch off %1$s</string>
+    <!-- %1$s is when ("When the porch sensor detects motion"), %2$s is what ("switch on the porch light") -->
+    <string name="rule_sentence">%1$s, %2$s.</string>
+    <!-- As above, and %3$s is how long, such as "2 minutes" -->
+    <string name="rule_sentence_hold">%1$s, %2$s, and put it back after %3$s.</string>
+    <plurals name="span_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <plurals name="span_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="span_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
 
     <!-- Account -->
     <string name="account_title">Account</string>
