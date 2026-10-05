@@ -17,6 +17,10 @@ import io.github.dgproman.pihome.hub.Sensor
 import io.github.dgproman.pihome.hub.Session
 import io.github.dgproman.pihome.hub.SessionToken
 import io.github.dgproman.pihome.hub.SignedIn
+import io.github.dgproman.pihome.quick.TileChoice
+import io.github.dgproman.pihome.quick.TileChoices
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -171,6 +175,19 @@ class FakeLocalNetwork(
     var granted: Boolean = false,
 ) : LocalNetwork {
     override suspend fun mustAsk(address: HubAddress): Boolean = local && !granted
+}
+
+/** The tile's relay, kept in memory. */
+class FakeTileChoices(
+    initial: TileChoice? = null,
+) : TileChoices {
+    private val held = MutableStateFlow(initial)
+
+    override val choice: Flow<TileChoice?> = held
+
+    override suspend fun choose(choice: TileChoice?) {
+        held.value = choice
+    }
 }
 
 /** A clock a test moves by hand. */

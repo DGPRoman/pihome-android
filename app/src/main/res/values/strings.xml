@@ -242,6 +242,31 @@
     <string name="withdrawing">Withdrawing…</string>
     <string name="done">Done</string>
 
+    <!-- The Quick Settings tile -->
+    <string name="tile_label">Relay</string>
+    <!-- Android 9, which has no second line on a tile. %1$s is the relay's name, %2$s its state -->
+    <string name="tile_label_with_state">%1$s: %2$s</string>
+    <string name="tile_reading">Checking…</string>
+    <string name="tile_switching_on">Switching on…</string>
+    <string name="tile_switching_off">Switching off…</string>
+    <string name="tile_unreachable">Hub not answering</string>
+    <string name="tile_refused">Not switched</string>
+    <string name="tile_not_connected">Open the app to connect</string>
+    <string name="tile_read_only">Your account cannot switch it</string>
+    <string name="tile_needs_permission">Open the app to allow network access</string>
+    <string name="tile_not_chosen">Choose a relay in the app</string>
+    <string name="tile_not_found">No longer on the hub</string>
+    <!-- Choosing the tile's relay -->
+    <string name="tile_title">Quick Settings tile</string>
+    <string name="tile_body">A tile in Quick Settings switches one relay without opening the app. On a locked phone, it asks for the phone to be unlocked first.</string>
+    <string name="tile_viewer">Your account can see the house but not change it, so the tile only opens the app. An admin can make it an operator.</string>
+    <string name="tile_relay">The tile\'s relay</string>
+    <string name="tile_add">Add the tile</string>
+    <string name="tile_add_by_hand">To add the tile, pull down Quick Settings, tap the pencil, and drag the Relay tile in.</string>
+    <string name="tile_added">The tile is in Quick Settings.</string>
+    <string name="tile_already_added">The tile is already in Quick Settings.</string>
+    <string name="tile_add_failed">Android did not add the tile. Add it by editing Quick Settings.</string>
+
     <!-- Account -->
     <string name="account_title">Account</string>
     <string name="account_hub">Hub</string>

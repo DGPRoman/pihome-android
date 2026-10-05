@@ -35,6 +35,7 @@ import io.github.dgproman.pihome.hub.InputProblem
 import io.github.dgproman.pihome.hub.InvitationLink
 import io.github.dgproman.pihome.people.PeopleViewModel
 import io.github.dgproman.pihome.people.mayManagePeople
+import io.github.dgproman.pihome.quick.TileSettingsViewModel
 import io.github.dgproman.pihome.session.Gate
 import io.github.dgproman.pihome.session.SavedSession
 import io.github.dgproman.pihome.ui.connect.linkMessageFor
@@ -45,6 +46,7 @@ import io.github.dgproman.pihome.ui.screens.LogInScreen
 import io.github.dgproman.pihome.ui.screens.PasteInvitationScreen
 import io.github.dgproman.pihome.ui.screens.PeopleScreen
 import io.github.dgproman.pihome.ui.screens.SessionEndedScreen
+import io.github.dgproman.pihome.ui.screens.TileScreen
 import io.github.dgproman.pihome.ui.screens.WelcomeScreen
 import java.time.Instant
 
@@ -214,7 +216,21 @@ private fun SignedIn(
                 clock = graph.clock,
                 onBack = { backStack.removeLastOrNull() },
                 onSignOut = { graph.gate.signOut() },
+                onTile = { backStack.add(TileSettings) },
             )
+        }
+        entry<TileSettings> {
+            val model =
+                viewModel {
+                    TileSettingsViewModel(
+                        hub = graph.hubs.at(saved.address, saved.token),
+                        choices = graph.tileChoices,
+                        clock = graph.clock,
+                        onRefused = { graph.gate.refused(saved.token) },
+                        onChosen = graph.redrawTile,
+                    )
+                }
+            TileScreen(model, mayChange = saved.session.role.mayChangeTheHouse, onBack = { backStack.removeLastOrNull() })
         }
     }
 }
