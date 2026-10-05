@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Signed out -->
     <string name="not_connected">Ще не підключено до хаба</string>
+    <string name="welcome_body">Щоб підключити цей телефон, попросіть запрошення в того, хто доглядає за вашим хабом.</string>
+
+    <!-- The house -->
+    <string name="house_title">Будинок</string>
+    <string name="house_connected">Підключено до %1$s</string>
+
+    <!-- Account -->
+    <string name="account_title">Акаунт</string>
+    <string name="account_hub">Хаб</string>
+    <string name="account_version">Версія застосунку</string>
+    <string name="sign_out">Вийти</string>
+
+    <!-- The hub stopped accepting the session -->
+    <string name="session_ended_title">Сеанс завершено</string>
+    <string name="session_ended_body">Хаб більше не приймає цей телефон. Можливо, сеанс минув, або акаунт вимкнули чи видалили. Щоб підключитися знову, попросіть нове запрошення.</string>
+    <string name="session_ended_continue">Зрозуміло</string>
+
+    <string name="navigate_up">Назад</string>
 </resources>
