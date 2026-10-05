@@ -30,6 +30,82 @@ class SessionCallsTest {
             .build()
 
     @Test
+    fun `the health check asks once, with no session, and takes the hub's answer`() =
+        runTest {
+            hub.answer(200, """{"status":"ok"}""")
+
+            hub.client().checkHealth()
+
+            val request = hub.takeRequest()
+            assertEquals("GET", request.method)
+            assertEquals("/health", request.target)
+            assertNull(request.headers["Cookie"])
+        }
+
+    @Test
+    fun `anything else answering the health check is not the hub`() =
+        runTest {
+            val others =
+                listOf(
+                    MockResponse
+                        .Builder()
+                        .code(200)
+                        .setHeader("Content-Type", "text/html")
+                        .body("<p>Sign in to this Wi-Fi</p>")
+                        .build(),
+                    MockResponse
+                        .Builder()
+                        .code(200)
+                        .setHeader("Content-Type", "application/json")
+                        .body("""{"status":"up"}""")
+                        .build(),
+                    MockResponse
+                        .Builder()
+                        .code(200)
+                        .setHeader("Content-Type", "application/json")
+                        .body("""{"ok":true}""")
+                        .build(),
+                    MockResponse
+                        .Builder()
+                        .code(
+                            404,
+                        ).setHeader("Content-Type", "application/json")
+                        .body("""{"detail":"Not Found"}""")
+                        .build(),
+                    MockResponse
+                        .Builder()
+                        .code(401)
+                        .setHeader("Content-Type", "application/json")
+                        .body("""{}""")
+                        .build(),
+                    MockResponse
+                        .Builder()
+                        .code(302)
+                        .setHeader("Location", "http://portal.example/")
+                        .build(),
+                )
+            for (other in others) {
+                hub.answer(other)
+
+                val failure = assertFailsWith<HubException> { hub.client().checkHealth() }
+
+                assertEquals(HubErrorKind.NOT_THE_HUB, failure.kind, other.toString())
+            }
+        }
+
+    @Test
+    fun `a failing health check is not asked again`() =
+        runTest {
+            hub.answer(500, """{"detail":"Internal Server Error"}""")
+            hub.answer(200, """{"status":"ok"}""")
+
+            val failure = assertFailsWith<HubException> { hub.client().checkHealth() }
+
+            assertEquals(HubErrorKind.SERVER, failure.kind)
+            assertEquals(1, hub.requestCount)
+        }
+
+    @Test
     fun `logging in posts the name and password, and keeps the token from the cookie`() =
         runTest {
             hub.answer(opened())

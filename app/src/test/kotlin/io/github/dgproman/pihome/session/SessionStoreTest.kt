@@ -42,8 +42,9 @@ class SessionStoreTest {
             store.save(HOME)
 
             val file = folder.sessionFile().readBytes().decodeToString()
-            assertFalse(HOME.token in file)
-            assertTrue(HOME.hub in file)
+            assertFalse(HOME.token.value in file)
+            assertTrue(HOME.address.origin in file)
+            assertTrue(HOME.session.username in file)
         }
 
     @Test
@@ -74,9 +75,50 @@ class SessionStoreTest {
     fun `a token that is not even base64 reads as signed out`() =
         runTest {
             data.edit {
-                it[stringPreferencesKey("hub")] = HOME.hub
+                it[stringPreferencesKey("hub")] = HOME.address.origin
                 it[stringPreferencesKey("token")] = "not base64!"
             }
+
+            assertNull(store.read())
+        }
+
+    @Test
+    fun `who the session belongs to is kept with it`() =
+        runTest {
+            store.save(HOME)
+
+            assertEquals(HOME.session, store.read()?.session)
+        }
+
+    @Test
+    fun `a session saved without who it belongs to reads as signed out, and is dropped`() =
+        runTest {
+            store.save(HOME)
+            data.edit { it.remove(stringPreferencesKey("role")) }
+
+            assertNull(store.read())
+            assertTrue(
+                data.data
+                    .first()
+                    .asMap()
+                    .isEmpty(),
+            )
+        }
+
+    @Test
+    fun `a role this build does not know reads as signed out`() =
+        runTest {
+            store.save(HOME)
+            data.edit { it[stringPreferencesKey("role")] = "OWNER" }
+
+            assertNull(store.read())
+        }
+
+    @Test
+    fun `an address this build no longer takes reads as signed out`() =
+        runTest {
+            store.save(HOME)
+            data.edit { it[stringPreferencesKey("hub")] = "http://203.0.113.9:5002" }
 
             assertNull(store.read())
         }
@@ -98,6 +140,6 @@ class SessionStoreTest {
 
     @Test
     fun `a saved session never prints its token`() {
-        assertFalse(HOME.token in HOME.toString())
+        assertFalse(HOME.token.value in HOME.toString())
     }
 }

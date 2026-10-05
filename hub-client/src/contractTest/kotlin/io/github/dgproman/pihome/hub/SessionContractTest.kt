@@ -14,6 +14,12 @@ class SessionContractTest {
     private val hub = ContractHub.current
 
     @Test
+    fun `the hub answers its health check`() =
+        runTest {
+            hub.anonymous().checkHealth()
+        }
+
+    @Test
     fun `a password opens a session, which reads itself back until it is closed`() =
         runTest {
             val signedIn = hub.anonymous().logIn(hub.admin, hub.password)

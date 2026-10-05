@@ -8,10 +8,10 @@ the relays, what the sensors last reported, whether the hub can still reach its 
 the rules wiring them together — plus what a browser cannot offer, a Quick Settings tile, a
 home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 
-> **Status: skeleton.** The build, its checks and CI are in place, and so are the client for
-> the hub's API, tested against recorded replies and against a running hub, and the app's
-> frame: its screens, navigation, and where it keeps a session, in English and Ukrainian. The
-> app does not use the client yet — see [Roadmap](#roadmap).
+> **Status: connects, shows nothing yet.** A phone joins a hub by scanning an invitation, or an
+> admin logs in with a password, and the app keeps that session, checks it with the hub each
+> time it comes into view, and shows who it is and when it ends. The house itself — relays,
+> sensors, devices, rules — is next; see [Roadmap](#roadmap).
 
 ## Design notes
 
@@ -38,10 +38,31 @@ inviting a second phone in, changing its role, disabling and deleting it. Pull r
 it against a pinned hub commit, and once a week it runs against the hub's `main`, to notice
 the two drifting apart.
 
-**Plain `http://` only at home.** A hub on the home network is usually reached without TLS.
-The client allows that only while every address the name resolves to is private — loopback,
+**Plain `http://` only at home.** A hub on the home network is usually reached without TLS,
+so Android's own block on it is lifted, and the client takes its place: it allows plain
+`http://` only while every address the name resolves to is private — loopback,
 RFC 1918, `100.64.0.0/10`, link-local or IPv6 unique local — checked as it connects, so a
 name that starts resolving elsewhere is refused. Anything else needs `https://`.
+
+**An invitation is spent once, so it is sent once.** Most people arrive with an invitation
+the web client shows as a QR code, scanned with Google's code scanner, which runs in Play
+services and needs no camera permission here; a link can be pasted instead. The hub spends an
+invitation on its first use, refused or not, so the app names the hub and waits for Join,
+never sends one twice, and tells a refusal, an invitation that ran out and a reply that never
+came apart. Before an invitation or a password is sent anywhere, the address has to answer
+the hub's health check, so a typing mistake or a Wi-Fi sign-in page gets neither.
+
+**Asking for the local network only when it is needed.** From Android 17 an app needs
+permission to reach devices on the network the phone is on, and a connection made without
+it hangs rather than fails. The app looks up where the hub is before it connects, explains
+and asks only for an address on the local network, and when the answer was no, says so with
+a way to the settings rather than reporting the hub as switched off.
+
+**The session is checked as the app comes into view.** Each time, the app asks the hub who
+the session belongs to: a refusal ends it at once, and a new role or a later expiry is kept.
+Asked from the home network, that is also what renews the session. Signing out forgets the
+session on the phone first and then ends it on the hub, so it never waits for a hub that is
+out of reach.
 
 **Nothing leaves the phone.** Cloud backups and device-to-device transfers are off. A new
 phone joins with an invitation of its own rather than inheriting another's session.
@@ -94,10 +115,13 @@ app/                           the Android application
     │   ├── AndroidManifest.xml
     │   ├── kotlin/io/github/dgproman/pihome/
     │   │   ├── AppGraph.kt        everything the app is made of, wired by hand
+    │   │   ├── Hubs.kt            where a hub client comes from, one HTTP client for all
     │   │   ├── MainActivity.kt    the one activity
+    │   │   ├── connect/           joining, logging in, the scanner, the local network
     │   │   ├── session/           the encrypted session, and the gate above the screens
     │   │   └── ui/
     │   │       ├── PihomeApp.kt   signed out or in, each with its own back stack
+    │   │       ├── connect/       what the connecting screens share
     │   │       ├── screens/       one file per screen
     │   │       └── theme/         colours from the web client's tokens
     │   └── res/                   strings in two languages, icons, backup rules
@@ -105,10 +129,11 @@ app/                           the Android application
 hub-client/                    plain Kotlin: everything that talks to the hub
 └── src/
     ├── main/kotlin/io/github/dgproman/pihome/hub/
-    │   ├── HubClient.kt       one call per route the app uses
+    │   ├── Hub.kt             every call the app makes, as an interface
+    │   ├── HubClient.kt       the same over HTTP, one call per route
     │   ├── Transport.kt       timeouts, headers, status codes, sent-once writes
     │   ├── HubAddress.kt      what may be typed in as a hub, and the http rule
-    │   ├── HomeNetwork.kt     which addresses count as home
+    │   ├── HomeNetwork.kt     which addresses count as home, and need the permission
     │   ├── InvitationLink.kt  the /join#token links the web client builds
     │   └── Session.kt, House.kt, Accounts.kt   what the hub answers
     ├── test/                  against recorded replies
@@ -125,7 +150,7 @@ gradle/libs.versions.toml      every dependency version, exact
 | 1     | Build, checks and CI                                            | #1             | ✅ done    |
 | 2     | Hub client, tested against recorded replies and a real hub      | #2, #3         | ✅ done    |
 | 3     | App shell: theme, navigation, session storage                   | #4             | ✅ done    |
-| 4     | Connecting: invitation, password, local-network permission      | #5             | planned    |
+| 4     | Connecting: invitation, password, local-network permission      | #5             | ✅ done    |
 | 5     | The house: relays, sensors, devices, rules                      | #6             | planned    |
 | 6     | People and invitations, for an admin                            | #7             | planned    |
 | 7     | Quick Settings tile, home-screen widget, launcher shortcuts     | #8, #9, #10    | planned    |

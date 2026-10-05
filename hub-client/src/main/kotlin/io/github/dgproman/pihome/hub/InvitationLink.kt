@@ -1,5 +1,6 @@
 package io.github.dgproman.pihome.hub
 
+import kotlinx.serialization.Serializable
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 /**
@@ -9,7 +10,11 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
  * hub and to be let in. The token is after `#` because a browser never sends that
  * part to a server; this app never does either, and presents it only in the body
  * of the request that redeems it.
+ *
+ * Serializable so the screen that offers to redeem it can be restored, and
+ * printed with its token redacted.
  */
+@Serializable
 data class InvitationLink(
     val hub: HubAddress,
     val token: InvitationToken,

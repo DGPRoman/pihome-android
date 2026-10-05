@@ -56,6 +56,31 @@ private fun isIpv4Mapped(bytes: ByteArray): Boolean =
         bytes[10] == 0xff.toByte() &&
         bytes[11] == 0xff.toByte()
 
+/**
+ * Whether reaching [this] hub means reaching into the network the phone is on.
+ *
+ * Android 17 asks an app for permission before it connects to a device on the
+ * local network, and without it a connection to one simply hangs. This is the
+ * question of whether to ask: the hub's host, looked up with [dns], is on the
+ * home network and is not this device itself. An address written as numbers
+ * comes back from the lookup as it is.
+ *
+ * A name that does not resolve is taken as local over plain `http://`, where
+ * only the home network is allowed anyway and a `.local` name may need the
+ * permission to be found at all, and as not local over `https://`.
+ *
+ * Blocks while the name is looked up.
+ */
+fun HubAddress.reachesLocalNetwork(dns: Dns = Dns.SYSTEM): Boolean {
+    val addresses =
+        try {
+            dns.lookup(host)
+        } catch (_: UnknownHostException) {
+            return isPlainHttp
+        }
+    return addresses.any { isHomeNetwork(it) && !it.isLoopbackAddress }
+}
+
 /** Raised in place of an answer from [HomeNetworkDns]. Becomes [HubErrorKind.INSECURE]. */
 internal class PlainHttpRefusedException(
     host: String,

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Plain http is allowed here because a hub on the home network is reached that
+     way, at a name or an address no list here could know in advance. The hub
+     client decides instead, at the moment of connecting: plain http only to
+     addresses on the home network, https everywhere else. See HomeNetworkDns. -->
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <base-config
+        cleartextTrafficPermitted="true"
+        tools:ignore="InsecureBaseConfiguration">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

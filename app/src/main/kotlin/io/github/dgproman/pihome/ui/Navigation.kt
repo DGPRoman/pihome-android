@@ -1,6 +1,7 @@
 package io.github.dgproman.pihome.ui
 
 import androidx.navigation3.runtime.NavKey
+import io.github.dgproman.pihome.hub.InvitationLink
 import kotlinx.serialization.Serializable
 
 // Each key is a place in one of two back stacks: the one for being signed out
@@ -10,6 +11,28 @@ import kotlinx.serialization.Serializable
 /** Signed out: how to get connected. */
 @Serializable
 data object Welcome : NavKey
+
+/** Signed out: an invitation link brought by hand. */
+@Serializable
+data object PasteInvitation : NavKey
+
+/**
+ * Signed out: the hub an invitation leads to, and the button that redeems it.
+ *
+ * Kept with the back stack, token and all, so that turning the phone does not
+ * lose an invitation that works only once. Android keeps that state for this
+ * app alone, and the key prints without the token.
+ */
+@Serializable
+data class Join(
+    val link: InvitationLink,
+    /** When the link reached this phone, in milliseconds since the epoch. */
+    val receivedAt: Long,
+) : NavKey
+
+/** Signed out: an address, a name and a password. */
+@Serializable
+data object LogIn : NavKey
 
 /** Signed in: the relays, sensors and devices of the house. */
 @Serializable
