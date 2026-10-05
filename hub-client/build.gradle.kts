@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
     // Lets the app's lint, which checks its dependencies, read this module too. Lint
     // knows the app's minSdk, and so catches a call older Android does not have.
     alias(libs.plugins.android.lint)
@@ -20,4 +21,16 @@ kotlin {
 
 tasks.withType<JavaCompile>().configureEach {
     options.release = 17
+}
+
+dependencies {
+    // The app reads these types straight off the client: the models carry
+    // serialization's JSON for a device's own status, and every call suspends.
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.serialization.json)
+    api(libs.okhttp)
+
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.okhttp.mockwebserver)
 }

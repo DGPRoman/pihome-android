@@ -6,6 +6,7 @@ plugins {
     // catalog. AGP 9 compiles Kotlin itself and would otherwise bring the Kotlin
     // Gradle plugin it was built against, which the catalog would not control.
     alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.spotless)
 }
 
