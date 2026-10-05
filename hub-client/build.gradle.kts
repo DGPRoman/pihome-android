@@ -49,8 +49,9 @@ testing {
             }
             targets.configureEach {
                 testTask.configure {
-                    // The hub is a new one each run, which Gradle cannot see.
-                    outputs.upToDateWhen { false }
+                    // Never up to date and never from the build cache: what is tested is
+                    // a hub started for this run, which Gradle cannot see as an input.
+                    doNotTrackState("each run is against a hub started for it")
                     shouldRunAfter(tasks.test)
                 }
             }
