@@ -41,3 +41,12 @@ data object House : NavKey
 /** Signed in: who this is, which hub, and the way out. */
 @Serializable
 data object Account : NavKey
+
+/**
+ * Signed in, as an admin: the accounts, and invitations for them.
+ *
+ * Holds nothing: an invitation issued there lives in that screen's model, in
+ * memory, and never in a back stack that Android saves.
+ */
+@Serializable
+data object People : NavKey

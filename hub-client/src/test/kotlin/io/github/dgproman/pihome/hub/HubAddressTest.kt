@@ -112,4 +112,28 @@ class HubAddressTest {
 
         assertEquals("/v1/users/o%2Fl%20ya", address.url(listOf("v1", "users", "o/l ya")).encodedPath)
     }
+
+    @Test
+    fun `localhost and loopback addresses lead only to this device`() {
+        val only =
+            listOf(
+                "http://localhost:5002",
+                "http://hub.localhost",
+                "http://LOCALHOST",
+                "http://127.0.0.1:5002",
+                "http://127.8.9.1",
+                "http://[::1]:5002",
+            )
+        val reachable =
+            listOf(
+                "http://192.168.1.20:5002",
+                "http://[fd00::20]",
+                "http://hub.local",
+                "https://hub.example.org",
+                "http://localhost.example",
+            )
+
+        assertEquals(emptyList<String>(), only.filterNot { HubAddress.parse(it).valid().onlyThisDevice })
+        assertEquals(emptyList<String>(), reachable.filter { HubAddress.parse(it).valid().onlyThisDevice })
+    }
 }

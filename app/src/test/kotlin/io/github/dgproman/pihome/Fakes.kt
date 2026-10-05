@@ -29,8 +29,8 @@ fun failure(kind: HubErrorKind): HubException = HubException(kind, "a failure ma
  * Hubs that answer what a test sets, and remember what they were asked.
  *
  * Each answer is a function, so a test can fail it, hold it back, or count it.
- * The house is empty until a test says otherwise. Only the calls the app makes
- * so far are answered; anything else fails the test.
+ * The house and the list of accounts are empty until a test says otherwise,
+ * and a write the test has not set up fails as the hub would fail it.
  */
 class FakeHubs : Hubs {
     var health: suspend (HubAddress) -> Unit = {}
@@ -44,8 +44,14 @@ class FakeHubs : Hubs {
     var sensors: suspend () -> List<Sensor> = { emptyList() }
     var devices: suspend () -> List<Device> = { emptyList() }
     var rules: suspend () -> List<AutomationRule> = { emptyList() }
+    var accounts: suspend () -> List<Account> = { emptyList() }
+    var createAccount: suspend (String, ManagedRole) -> Account = { _, _ -> throw failure(HubErrorKind.CONFLICT) }
+    var changeAccount: suspend (String, AccountChange) -> Account = { _, _ -> throw failure(HubErrorKind.NOT_FOUND) }
+    var deleteAccount: suspend (String) -> Unit = { throw failure(HubErrorKind.NOT_FOUND) }
+    var issueInvitation: suspend (String) -> Invitation = { throw failure(HubErrorKind.NOT_FOUND) }
+    var revokeInvitation: suspend (String) -> Unit = {}
 
-    /** Every call, in order: `what address` for the ways in, and `what` for the house. */
+    /** Every call, in order: `what address` for the ways in, and `what` for the house and the people. */
     val calls = mutableListOf<String>()
 
     override fun at(
@@ -116,25 +122,45 @@ class FakeHubs : Hubs {
                 return this@FakeHubs.rules()
             }
 
-            override suspend fun accounts(): List<Account> = unexpected()
+            override suspend fun accounts(): List<Account> {
+                calls += "accounts"
+                return this@FakeHubs.accounts()
+            }
 
             override suspend fun createAccount(
                 username: String,
                 role: ManagedRole,
-            ): Account = unexpected()
+            ): Account {
+                calls += "create $username $role"
+                return this@FakeHubs.createAccount(username, role)
+            }
 
             override suspend fun changeAccount(
                 username: String,
                 change: AccountChange,
-            ): Account = unexpected()
+            ): Account {
+                calls +=
+                    "change $username ${listOfNotNull(
+                        change.role,
+                        change.disabled?.let { if (it) "disabled" else "enabled" },
+                    ).joinToString(" ")}"
+                return this@FakeHubs.changeAccount(username, change)
+            }
 
-            override suspend fun deleteAccount(username: String) = unexpected()
+            override suspend fun deleteAccount(username: String) {
+                calls += "delete $username"
+                this@FakeHubs.deleteAccount(username)
+            }
 
-            override suspend fun issueInvitation(username: String): Invitation = unexpected()
+            override suspend fun issueInvitation(username: String): Invitation {
+                calls += "invite $username"
+                return this@FakeHubs.issueInvitation(username)
+            }
 
-            override suspend fun revokeInvitation(username: String) = unexpected()
-
-            private fun unexpected(): Nothing = throw AssertionError("the app asked the hub something this test does not expect")
+            override suspend fun revokeInvitation(username: String) {
+                calls += "withdraw $username"
+                this@FakeHubs.revokeInvitation(username)
+            }
         }
 }
 

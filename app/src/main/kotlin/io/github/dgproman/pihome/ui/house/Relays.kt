@@ -12,10 +12,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
@@ -28,8 +26,6 @@ import io.github.dgproman.pihome.hub.HubErrorKind
 import io.github.dgproman.pihome.ui.connect.messageFor
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 /** "All off", beside the relays' heading. Only live while something is on. */
 @Composable
@@ -129,13 +125,3 @@ private fun RelaySwitch(
 /** What to say when a press was refused this way. */
 @StringRes
 private fun writeMessageFor(kind: HubErrorKind): Int = if (kind == HubErrorKind.FORBIDDEN) R.string.relay_forbidden else messageFor(kind)
-
-@Composable
-private fun timeOfDay(
-    at: Instant,
-    zone: ZoneId,
-): String {
-    val locale = LocalConfiguration.current.locales[0]
-    val format = remember(locale, zone) { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale).withZone(zone) }
-    return format.format(at)
-}

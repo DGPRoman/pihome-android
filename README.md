@@ -8,11 +8,12 @@ the relays, what the sensors last reported, whether the hub can still reach its 
 the rules wiring them together — plus what a browser cannot offer, a Quick Settings tile, a
 home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 
-> **Status: shows and switches the house.** A phone joins a hub by opening an invitation, or an
-> admin logs in with a password. The app then shows the relays as switches, what each sensor
-> last reported and how long ago, whether the hub can reach its devices, and the automation
-> rules, read every ten seconds while the screen is open. Managing people, and the tile,
-> widget and shortcuts, are next; see [Roadmap](#roadmap).
+> **Status: shows and switches the house, and lets an admin invite people.** A phone joins a
+> hub by opening an invitation, or an admin logs in with a password. The app then shows the
+> relays as switches, what each sensor last reported and how long ago, whether the hub can
+> reach its devices, and the automation rules, read every ten seconds while the screen is
+> open. An admin adds people and hands them an invitation as a QR code or a link. The tile,
+> widget and shortcuts are next; see [Roadmap](#roadmap).
 
 ## Design notes
 
@@ -103,6 +104,15 @@ saying it is the last one the hub gave.
 say whether a particular one is current. Each reading is judged by its own time against the
 sensor's window, and one that has no time is neither current nor stale.
 
+**An invitation is shown once, and held only while it is.** The token the hub issues is kept in
+the people screen's memory: not in the saved screen state, not on disk, and gone with the
+screen. Leaving does not withdraw it, and the screen says so. The QR code is drawn on the
+phone, and the link is copied marked sensitive, so Android's clipboard preview hides it. The
+hub does not say when an invitation is used; the account just stops listing it. So the list
+is read while the screen is open, and the invitation is marked used only by a read sent after
+it was issued and answered before it ran out, which is how the web client tells used from
+expired.
+
 **One product with the web client.** Colours come from the web client's design tokens, light
 or dark as the system is set, and not from the wallpaper. The strings are in English and
 Ukrainian, and Android lets the language be chosen for this app alone.
@@ -144,11 +154,13 @@ app/                           the Android application
     │   │   ├── MainActivity.kt    the one activity
     │   │   ├── connect/           joining, logging in, invitations arriving, the local network
     │   │   ├── house/             the house as the hub reports it: polling, presses, ages
+    │   │   ├── people/            accounts and invitations, for an admin, and the QR code
     │   │   ├── session/           the encrypted session, and the gate above the screens
     │   │   └── ui/
     │   │       ├── PihomeApp.kt   signed out or in, each with its own back stack
     │   │       ├── connect/       what the connecting screens share
     │   │       ├── house/         relays, sensors, devices and rules on screen
+    │   │       ├── people/        accounts, adding a person, and the invitation on screen
     │   │       ├── screens/       one file per screen
     │   │       └── theme/         colours from the web client's tokens
     │   └── res/                   strings in two languages, icons, backup rules
@@ -179,7 +191,7 @@ gradle/libs.versions.toml      every dependency version, exact
 | 3     | App shell: theme, navigation, session storage                   | #4             | ✅ done    |
 | 4     | Connecting: invitation, password, local-network permission      | #5             | ✅ done    |
 | 5     | The house: relays, sensors, devices, rules                      | #6             | ✅ done    |
-| 6     | People and invitations, for an admin                            | #7             | planned    |
+| 6     | People and invitations, for an admin                            | #7             | ✅ done    |
 | 7     | Quick Settings tile, home-screen widget, launcher shortcuts     | #8, #9, #10    | planned    |
 | 8     | Signed releases                                                 | #11            | planned    |
 

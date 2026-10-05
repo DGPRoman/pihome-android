@@ -180,6 +180,64 @@
         <item quantity="other">%d години</item>
     </plurals>
 
+    <!-- Люди, для адміністратора -->
+    <string name="people_title">Люди</string>
+    <string name="accounts_title">Акаунти</string>
+    <string name="people_loading">Читаю акаунти…</string>
+    <string name="people_empty">На хабі немає жодного акаунта.</string>
+    <string name="person_disabled">Вимкнено</string>
+    <string name="person_invited">Запрошення діє до %1$s</string>
+    <string name="managed_on_console">Акаунтами адміністраторів керують з консолі хаба.</string>
+    <string name="make_operator">Зробити оператором</string>
+    <string name="make_viewer">Зробити глядачем</string>
+    <string name="enable">Увімкнути</string>
+    <string name="disable">Вимкнути</string>
+    <string name="invite">Запросити</string>
+    <string name="invite_again">Нове запрошення</string>
+    <string name="inviting">Запрошую…</string>
+    <string name="withdraw_invitation">Відкликати запрошення</string>
+    <string name="delete">Видалити</string>
+    <string name="saving">Зберігаю…</string>
+    <string name="delete_title">Видалити %1$s?</string>
+    <string name="delete_body">Кожен пристрій, що увійшов як %1$s, буде виведено з акаунта, а запрошення для %1$s перестане діяти.</string>
+    <string name="delete_confirm">Видалити %1$s</string>
+    <string name="keep">Залишити</string>
+    <string name="change_unconfirmed">Придатної відповіді не надійшло, тож це могло все одно статися. Список показує те, що є на хабі.</string>
+    <string name="person_gone">На хабі вже немає акаунта з таким ім’ям.</string>
+    <string name="admins_only">Це може зробити лише адміністратор.</string>
+    <string name="invite_disabled">Цей акаунт вимкнено. Спершу увімкніть його.</string>
+    <string name="add_title">Додати людину</string>
+    <string name="person_name">Ім’я</string>
+    <string name="username_rule">Латинські літери й цифри, від 2 до 32, з «.», «_» або «-» між ними. Наприклад: olya.</string>
+    <string name="person_role">Роль</string>
+    <string name="role_choice_viewer">Глядач: бачить будинок і нічого не змінює</string>
+    <string name="role_choice_operator">Оператор: ще й вмикає світло та реле</string>
+    <string name="add_button">Додати й запросити</string>
+    <string name="adding">Додаю…</string>
+    <string name="name_taken">Акаунт з таким ім’ям уже є. Великі й малі літери не розрізняються.</string>
+    <string name="name_refused">Хаб не приймає такого імені.</string>
+    <string name="invitation_title">Запрошення для %1$s</string>
+    <string name="invitation_body">Відскануйте код або надішліть посилання. Воно один раз впускає один пристрій в акаунт %1$s. Хто відкриє першим, той і ввійде, тож надсилайте його лише %1$s і нікому більше.</string>
+    <string name="invitation_qr">QR-код посилання-запрошення для %1$s</string>
+    <string name="invitation_only_this_device">Цей телефон звертається до хаба за адресою, що веде лише до нього самого, тож посилання спрацює тільки на цьому телефоні. Підключіться до хаба за його адресою в мережі, щоб запрошувати звідси.</string>
+    <string name="share">Поділитися</string>
+    <string name="copy">Копіювати</string>
+    <string name="copied">Скопійовано.</string>
+    <string name="invitation_countdown">Діє до %1$s. %2$s.</string>
+    <string name="less_than_a_minute_left">Лишилося менше хвилини</string>
+    <plurals name="minutes_left">
+        <item quantity="one">Лишилася %d хвилина</item>
+        <item quantity="few">Лишилося %d хвилини</item>
+        <item quantity="many">Лишилося %d хвилин</item>
+        <item quantity="other">Лишилося %d хвилини</item>
+    </plurals>
+    <string name="invitation_stays">Якщо піти з цього екрана, запрошення не буде відкликано: воно діятиме, доки ним не скористаються або доки не мине час. Відкличте його, якщо не надсилатимете.</string>
+    <string name="invitation_gone">Цим запрошенням уже скористалися або його відкликали деінде. Код більше нічого не відкриває.</string>
+    <string name="invitation_ran_out">Термін цього запрошення минув о %1$s. Воно більше нічого не відкриває.</string>
+    <string name="withdraw">Відкликати</string>
+    <string name="withdrawing">Відкликаю…</string>
+    <string name="done">Готово</string>
+
     <!-- Account -->
     <string name="account_title">Акаунт</string>
     <string name="account_hub">Хаб</string>
