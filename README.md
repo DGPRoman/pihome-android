@@ -12,8 +12,9 @@ home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 > hub by opening an invitation, or an admin logs in with a password. The app then shows the
 > relays as switches, what each sensor last reported and how long ago, whether the hub can
 > reach its devices, and the automation rules, read every ten seconds while the screen is
-> open. An admin adds people and hands them an invitation as a QR code or a link. The tile,
-> widget and shortcuts are next; see [Roadmap](#roadmap).
+> open. An admin adds people and hands them an invitation as a QR code or a link. A Quick
+> Settings tile switches one relay without opening the app. The widget and shortcuts are next;
+> see [Roadmap](#roadmap).
 
 ## Design notes
 
@@ -113,6 +114,15 @@ is read while the screen is open, and the invitation is marked used only by a re
 it was issued and answered before it ran out, which is how the web client tells used from
 expired.
 
+**A tile acts only for somebody who could act in the app.** The Quick Settings tile switches one
+relay, chosen in the app. On a locked phone it asks for the phone to be unlocked first, so
+whoever picks up somebody else's phone cannot open the gate with it. With no session, a
+viewer's account, or no leave to reach the home network, it says so and a tap opens the app;
+it sends nothing it knows would be refused or would hang. Each request gets six seconds, a
+switch with no answer in that time says it is not sure, and a refused session ends it for the
+whole app, as on any screen. A switch still under way when the shade closes finishes, and the
+tile shows how it ended.
+
 **One product with the web client.** Colours come from the web client's design tokens, light
 or dark as the system is set, and not from the wallpaper. The strings are in English and
 Ukrainian, and Android lets the language be chosen for this app alone.
@@ -155,6 +165,7 @@ app/                           the Android application
     │   │   ├── connect/           joining, logging in, invitations arriving, the local network
     │   │   ├── house/             the house as the hub reports it: polling, presses, ages
     │   │   ├── people/            accounts and invitations, for an admin, and the QR code
+    │   │   ├── quick/             the tile, and what it shares with the widget and shortcuts to come
     │   │   ├── session/           the encrypted session, and the gate above the screens
     │   │   └── ui/
     │   │       ├── PihomeApp.kt   signed out or in, each with its own back stack
@@ -192,7 +203,7 @@ gradle/libs.versions.toml      every dependency version, exact
 | 4     | Connecting: invitation, password, local-network permission      | #5             | ✅ done    |
 | 5     | The house: relays, sensors, devices, rules                      | #6             | ✅ done    |
 | 6     | People and invitations, for an admin                            | #7             | ✅ done    |
-| 7     | Quick Settings tile, home-screen widget, launcher shortcuts     | #8, #9, #10    | planned    |
+| 7     | Quick Settings tile, home-screen widget, launcher shortcuts     | #8, #9, #10    | tile done  |
 | 8     | Signed releases                                                 | #11            | planned    |
 
 ## License
