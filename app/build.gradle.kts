@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.tink.android)
+    // Draws invitation codes on the phone, so the hub never makes an image of a credential.
+    implementation(libs.zxing.core)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(platform(libs.androidx.compose.bom))

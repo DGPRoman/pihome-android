@@ -32,6 +32,9 @@ import io.github.dgproman.pihome.hub.HubErrorKind
 import io.github.dgproman.pihome.ui.connect.messageFor
 import java.text.NumberFormat
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 /**
  * One part of the house under its heading, and whatever became of reading it.
@@ -189,4 +192,15 @@ fun decimal(value: Double): String {
     val locale = LocalConfiguration.current.locales[0]
     val format = remember(locale) { NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 1 } }
     return format.format(value)
+}
+
+/** A time of day, as the reader's language writes one. */
+@Composable
+fun timeOfDay(
+    at: Instant,
+    zone: ZoneId,
+): String {
+    val locale = LocalConfiguration.current.locales[0]
+    val format = remember(locale, zone) { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale).withZone(zone) }
+    return format.format(at)
 }

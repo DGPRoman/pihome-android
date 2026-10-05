@@ -33,6 +33,8 @@ import io.github.dgproman.pihome.house.HouseViewModel
 import io.github.dgproman.pihome.house.mayChangeTheHouse
 import io.github.dgproman.pihome.hub.InputProblem
 import io.github.dgproman.pihome.hub.InvitationLink
+import io.github.dgproman.pihome.people.PeopleViewModel
+import io.github.dgproman.pihome.people.mayManagePeople
 import io.github.dgproman.pihome.session.Gate
 import io.github.dgproman.pihome.session.SavedSession
 import io.github.dgproman.pihome.ui.connect.linkMessageFor
@@ -41,6 +43,7 @@ import io.github.dgproman.pihome.ui.screens.HouseScreen
 import io.github.dgproman.pihome.ui.screens.JoinScreen
 import io.github.dgproman.pihome.ui.screens.LogInScreen
 import io.github.dgproman.pihome.ui.screens.PasteInvitationScreen
+import io.github.dgproman.pihome.ui.screens.PeopleScreen
 import io.github.dgproman.pihome.ui.screens.SessionEndedScreen
 import io.github.dgproman.pihome.ui.screens.WelcomeScreen
 import java.time.Instant
@@ -167,6 +170,10 @@ private fun SignedIn(
     version: String,
 ) {
     val backStack = rememberNavBackStack(House)
+    // An account that is no longer an admin has no business on the people screen.
+    LaunchedEffect(saved.session.role) {
+        if (!saved.session.role.mayManagePeople) backStack.removeAll { it == People }
+    }
     IncomingWhileSignedIn(graph, saved)
     Navigation(backStack) {
         entry<House> {
@@ -185,7 +192,20 @@ private fun SignedIn(
                 mayChange = saved.session.role.mayChangeTheHouse,
                 zone = graph.clock.zone,
                 onAccount = { backStack.add(Account) },
+                onPeople = if (saved.session.role.mayManagePeople) ({ backStack.add(People) }) else null,
             )
+        }
+        entry<People> {
+            val model =
+                viewModel {
+                    PeopleViewModel(
+                        hub = graph.hubs.at(saved.address, saved.token),
+                        clock = graph.clock,
+                        onRefused = { graph.gate.refused(saved.token) },
+                        onForbidden = { graph.gate.check() },
+                    )
+                }
+            PeopleScreen(model, saved.address, graph.clock, onBack = { backStack.removeLastOrNull() })
         }
         entry<Account> {
             AccountScreen(

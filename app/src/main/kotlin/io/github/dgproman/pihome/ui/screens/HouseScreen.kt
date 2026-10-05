@@ -47,6 +47,8 @@ fun HouseScreen(
     mayChange: Boolean,
     zone: ZoneId,
     onAccount: () -> Unit,
+    /** Open the people who use the hub, for an admin; null for anybody else, who is shown nothing of it. */
+    onPeople: (() -> Unit)? = null,
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(model, lifecycle) {
@@ -62,6 +64,7 @@ fun HouseScreen(
         onRetry = { model.refresh() },
         onPull = model::pull,
         onAccount = onAccount,
+        onPeople = onPeople,
     )
 }
 
@@ -76,10 +79,16 @@ fun HouseContent(
     onRetry: () -> Unit,
     onPull: () -> Unit,
     onAccount: () -> Unit,
+    onPeople: (() -> Unit)? = null,
 ) {
     Screen(
         title = stringResource(R.string.house_title),
         actions = {
+            if (onPeople != null) {
+                IconButton(onClick = onPeople) {
+                    Icon(painterResource(R.drawable.ic_people), contentDescription = stringResource(R.string.people_title))
+                }
+            }
             IconButton(onClick = onAccount) {
                 Icon(painterResource(R.drawable.ic_account), contentDescription = stringResource(R.string.account_title))
             }

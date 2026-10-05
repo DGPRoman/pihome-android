@@ -180,6 +180,68 @@
         <item quantity="other">%d hours</item>
     </plurals>
 
+    <!-- People, for an admin -->
+    <string name="people_title">People</string>
+    <string name="accounts_title">Accounts</string>
+    <string name="people_loading">Reading the accounts…</string>
+    <string name="people_empty">The hub has no accounts.</string>
+    <string name="person_disabled">Disabled</string>
+    <!-- %1$s is a time of day, such as 12:15 -->
+    <string name="person_invited">Invitation open until %1$s</string>
+    <string name="managed_on_console">Admin accounts are managed on the hub\'s console.</string>
+    <string name="make_operator">Make operator</string>
+    <string name="make_viewer">Make viewer</string>
+    <string name="enable">Enable</string>
+    <string name="disable">Disable</string>
+    <string name="invite">Invite</string>
+    <string name="invite_again">New invitation</string>
+    <string name="inviting">Inviting…</string>
+    <string name="withdraw_invitation">Withdraw invitation</string>
+    <string name="delete">Delete</string>
+    <string name="saving">Saving…</string>
+    <!-- %1$s is the account's name -->
+    <string name="delete_title">Delete %1$s?</string>
+    <string name="delete_body">Any device logged in as %1$s is logged out, and an invitation for %1$s stops working.</string>
+    <string name="delete_confirm">Delete %1$s</string>
+    <string name="keep">Keep</string>
+    <string name="change_unconfirmed">No usable answer came back, so it may have been done anyway. The list shows what the hub has.</string>
+    <string name="person_gone">The hub has no account by this name any more.</string>
+    <string name="admins_only">Only an admin can do this.</string>
+    <string name="invite_disabled">This account is disabled. Enable it first.</string>
+    <!-- Adding a person -->
+    <string name="add_title">Add a person</string>
+    <string name="person_name">Name</string>
+    <string name="username_rule">Latin letters and digits, 2 to 32 of them, with “.”, “_” or “-” between. For example: olya.</string>
+    <string name="person_role">Role</string>
+    <string name="role_choice_viewer">Viewer: sees the house and changes nothing</string>
+    <string name="role_choice_operator">Operator: also switches the lights and relays</string>
+    <string name="add_button">Add and invite</string>
+    <string name="adding">Adding…</string>
+    <string name="name_taken">There is already an account by that name. Names are compared ignoring capitals.</string>
+    <string name="name_refused">The hub does not accept that name.</string>
+    <!-- An invitation, shown to be passed on. %1$s is the account's name -->
+    <string name="invitation_title">Invitation for %1$s</string>
+    <string name="invitation_body">Scan the code, or send the link. It logs one device into %1$s\'s account, once. Whoever opens it first gets in, so send it to %1$s and nobody else.</string>
+    <string name="invitation_qr">QR code for %1$s\'s invitation link</string>
+    <string name="invitation_only_this_device">This phone reaches the hub at an address that leads only to itself, so the link works on this phone alone. Connect to the hub by its network address to invite somebody from here.</string>
+    <string name="share">Share</string>
+    <string name="copy">Copy</string>
+    <string name="copied">Copied.</string>
+    <!-- %1$s is a time of day, such as 12:15; %2$s is how long is left, such as "14 minutes left" -->
+    <string name="invitation_countdown">Works until %1$s. %2$s.</string>
+    <string name="less_than_a_minute_left">Less than a minute left</string>
+    <plurals name="minutes_left">
+        <item quantity="one">%d minute left</item>
+        <item quantity="other">%d minutes left</item>
+    </plurals>
+    <string name="invitation_stays">Leaving this screen does not withdraw the invitation: it works until it is used or runs out. Withdraw it if you will not send it.</string>
+    <string name="invitation_gone">This invitation has been used, or withdrawn somewhere else. The code no longer opens anything.</string>
+    <!-- %1$s is a time of day -->
+    <string name="invitation_ran_out">This invitation ran out at %1$s. It no longer opens anything.</string>
+    <string name="withdraw">Withdraw</string>
+    <string name="withdrawing">Withdrawing…</string>
+    <string name="done">Done</string>
+
     <!-- Account -->
     <string name="account_title">Account</string>
     <string name="account_hub">Hub</string>
