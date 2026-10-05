@@ -1,0 +1,44 @@
+# What tells us a dependency has moved.
+#
+# Dependabot rather than a scheduled workflow: GitHub Actions may not open pull
+# requests in this account, and Dependabot is a separate service that can. Grouped
+# and weekly, so a security update is noticed among the rest rather than lost in a
+# stream of one pull request per package.
+
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
+    labels: ['chore']
+
+  # Reads gradle/libs.versions.toml, and the wrapper's properties including
+  # distributionSha256Sum.
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      # Minor and patch only, so a major lands in a pull request of its own and
+      # cannot hold the rest back.
+      gradle:
+        patterns: ['*']
+        update-types: ['minor', 'patch']
+    ignore:
+      # The Android Gradle plugin moves only as far as the Android Studio that has
+      # to open the project. 9.4 needs a newer Studio than the one this is built
+      # with; lift this when Studio is upgraded.
+      - dependency-name: 'com.android.*'
+        update-types: ['version-update:semver-minor', 'version-update:semver-major']
+    commit-message:
+      prefix: build
+    labels: ['chore']
