@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">pihome</string>
+
+    <!-- Signed out -->
     <string name="not_connected">Not connected to a hub yet</string>
+    <string name="welcome_body">To connect this phone, ask whoever looks after your hub for an invitation.</string>
+
+    <!-- The house -->
+    <string name="house_title">House</string>
+    <!-- %1$s is the hub's address, such as http://hub.local:5002 -->
+    <string name="house_connected">Connected to %1$s</string>
+
+    <!-- Account -->
+    <string name="account_title">Account</string>
+    <string name="account_hub">Hub</string>
+    <string name="account_version">App version</string>
+    <string name="sign_out">Sign out</string>
+
+    <!-- The hub stopped accepting the session -->
+    <string name="session_ended_title">Your session has ended</string>
+    <string name="session_ended_body">The hub no longer accepts this phone. The session may have run out, or the account may have been disabled or removed. Ask for a new invitation to connect again.</string>
+    <string name="session_ended_continue">OK</string>
+
+    <string name="navigate_up">Back</string>
 </resources>

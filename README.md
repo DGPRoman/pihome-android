@@ -8,9 +8,10 @@ the relays, what the sensors last reported, whether the hub can still reach its 
 the rules wiring them together — plus what a browser cannot offer, a Quick Settings tile, a
 home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 
-> **Status: skeleton.** The build, its checks and CI are in place, and so is the client for the
-> hub's API, tested against recorded replies. The app shows a single screen in English or
-> Ukrainian and does not use the client yet — see [Roadmap](#roadmap).
+> **Status: skeleton.** The build, its checks and CI are in place, and so are the client for
+> the hub's API, tested against recorded replies, and the app's frame: its screens, navigation,
+> and where it keeps a session, in English and Ukrainian. The app does not use the client yet —
+> see [Roadmap](#roadmap).
 
 ## Design notes
 
@@ -36,6 +37,17 @@ name that starts resolving elsewhere is refused. Anything else needs `https://`.
 
 **Nothing leaves the phone.** Cloud backups and device-to-device transfers are off. A new
 phone joins with an invitation of its own rather than inheriting another's session.
+
+**One secret, encrypted by the Keystore.** The session token is stored in DataStore encrypted
+with AES-GCM under a key that lives in the Android Keystore and cannot be read out of it, with
+the hub's address bound to it. A token that no longer decrypts — the Keystore lost its key,
+or the file was tampered with — means signed out, not a crash.
+
+**Signed in or not is decided above the screens.** Being signed out and being signed in each
+have their own back stack, and the session gate chooses between them. Losing the session
+takes every signed-in screen away at once, with whatever it was polling, so nothing keeps
+asking the hub with a session it has refused: the hub counts each refusal against the phone's
+address.
 
 **One product with the web client.** Colours come from the web client's design tokens, light
 or dark as the system is set, and not from the wallpaper. The strings are in English and
@@ -66,9 +78,14 @@ app/                           the Android application
     ├── main/
     │   ├── AndroidManifest.xml
     │   ├── kotlin/io/github/dgproman/pihome/
+    │   │   ├── AppGraph.kt        everything the app is made of, wired by hand
     │   │   ├── MainActivity.kt    the one activity
-    │   │   └── ui/theme/Theme.kt  colours from the web client's tokens
-    │   └── res/                   strings in two languages, icon, backup rules
+    │   │   ├── session/           the encrypted session, and the gate above the screens
+    │   │   └── ui/
+    │   │       ├── PihomeApp.kt   signed out or in, each with its own back stack
+    │   │       ├── screens/       one file per screen
+    │   │       └── theme/         colours from the web client's tokens
+    │   └── res/                   strings in two languages, icons, backup rules
     └── test/                      Robolectric and Compose tests
 hub-client/                    plain Kotlin: everything that talks to the hub
 └── src/main/kotlin/io/github/dgproman/pihome/hub/
@@ -88,7 +105,7 @@ gradle/libs.versions.toml      every dependency version, exact
 | ----- | --------------------------------------------------------------- | -------------- | ---------- |
 | 1     | Build, checks and CI                                            | #1             | ✅ done    |
 | 2     | Hub client, tested against recorded replies and a real hub      | #2, #3         | 🚧 partly  |
-| 3     | App shell: theme, navigation, session storage                   | #4             | planned    |
+| 3     | App shell: theme, navigation, session storage                   | #4             | ✅ done    |
 | 4     | Connecting: invitation, password, local-network permission      | #5             | planned    |
 | 5     | The house: relays, sensors, devices, rules                      | #6             | planned    |
 | 6     | People and invitations, for an admin                            | #7             | planned    |

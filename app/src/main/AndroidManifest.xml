@@ -5,6 +5,7 @@
          address and one session, and the session is not something to carry to
          another phone: a new phone joins with an invitation of its own. -->
     <application
+        android:name=".PihomeApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
