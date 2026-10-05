@@ -310,6 +310,39 @@ class HouseViewModelTest {
         }
 
     @Test
+    fun `a poll that starts during a press, and ends after it, cannot undo it`() =
+        runTest {
+            val model = model()
+            model.refresh()
+            advanceUntilIdle()
+            val answer = CompletableDeferred<Unit>()
+            hubs.setRelay = { id, on ->
+                answer.await()
+                onHub = onHub.map { if (it.id == id) it.copy(on = on) else it }
+                onHub.first { it.id == id }
+            }
+            model.setRelay("porch", true)
+            runCurrent()
+
+            // Served by the hub before the write, and slow to come back.
+            val slow = CompletableDeferred<List<Relay>>()
+            hubs.relays = { slow.await() }
+            model.refresh()
+            runCurrent()
+            hubs.relays = { onHub }
+            answer.complete(Unit)
+            runCurrent()
+            slow.complete(listOf(porch, gate))
+            advanceUntilIdle()
+
+            assertEquals(RelayRow(porch.copy(on = true)), model.relay("porch"))
+            assertEquals(
+                listOf("relays", "sensors", "devices", "rules", "set porch true", "sensors", "devices", "rules", "relays"),
+                hubs.calls,
+            )
+        }
+
+    @Test
     fun `all off switches everything off at once, and only while something is on`() =
         runTest {
             val model = model()
