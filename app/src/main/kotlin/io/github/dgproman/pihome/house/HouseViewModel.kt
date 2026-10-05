@@ -31,11 +31,12 @@ import java.time.Duration
  * When the answer is lost rather than a refusal, it stays where it was pressed
  * and says it is not sure (see [mayHaveHappened]).
  *
- * **A poll never undoes a press.** A read of the relays that started before a
- * press, or that ends while one is under way, may carry the state from before
- * it. A press cancels any read in flight, and a read's answer is dropped when a
- * press began after it or has not finished. Every press ends with a read of its
- * own, which is what settles it.
+ * **A poll never undoes a press.** A read of the relays that overlaps a press
+ * may carry the state from before it, whichever of the two the hub served
+ * first. So no read starts while a press is under way, a press cancels any
+ * read in flight, and a read's answer is dropped when a press began after it
+ * or has not finished. Every press ends with a read of its own, which is what
+ * settles it.
  *
  * **The first refusal of the session stops everything.** The hub counts each
  * one against this phone's address, and locks the address out after a few. So
@@ -200,7 +201,8 @@ class HouseViewModel(
         val begunBefore = pressesBegun
         return viewModelScope
             .launch {
-                if (stopped) return@launch
+                // The press under way ends with a read of its own.
+                if (stopped || pressesUnderWay > 0) return@launch
                 val answer =
                     try {
                         Result.success(hub.relays())
