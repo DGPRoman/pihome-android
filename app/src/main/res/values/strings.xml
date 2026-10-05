@@ -4,14 +4,20 @@
 
     <!-- Signed out -->
     <string name="not_connected">Not connected to a hub yet</string>
-    <string name="welcome_body">Ask whoever looks after your hub for an invitation, and scan its code with this phone.</string>
+    <string name="welcome_body">Ask whoever looks after your hub for an invitation, and scan its QR code with this phone\'s camera. The page it opens hands the invitation to this app.</string>
 
     <!-- Signed out: the ways in -->
-    <string name="scan_invitation">Scan an invitation</string>
     <string name="paste_invitation">Paste an invitation link</string>
     <string name="log_in_with_password">Log in with a password</string>
-    <string name="scan_unavailable">This phone cannot scan codes right now. Paste the invitation link instead.</string>
     <string name="not_an_invitation">That is not an invitation to a hub. Ask for the code or the link again.</string>
+
+    <!-- An invitation opened while this phone is signed in -->
+    <string name="incoming_title">Use this invitation?</string>
+    <!-- %1$s is the hub's address, %2$s the account this phone is signed in as -->
+    <string name="incoming_body">This phone is connected to %1$s as %2$s. Joining with the invitation signs it out of that account.</string>
+    <string name="incoming_use">Use the invitation</string>
+    <string name="incoming_keep">Keep this account</string>
+    <string name="dismiss">OK</string>
 
     <!-- Pasting an invitation link -->
     <string name="paste_title">Paste an invitation</string>

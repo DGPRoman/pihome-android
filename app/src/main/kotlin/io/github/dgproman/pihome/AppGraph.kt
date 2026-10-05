@@ -2,9 +2,8 @@ package io.github.dgproman.pihome
 
 import android.content.Context
 import io.github.dgproman.pihome.connect.AndroidLocalNetwork
-import io.github.dgproman.pihome.connect.InvitationScanner
+import io.github.dgproman.pihome.connect.IncomingInvitations
 import io.github.dgproman.pihome.connect.LocalNetwork
-import io.github.dgproman.pihome.connect.PlayServicesScanner
 import io.github.dgproman.pihome.session.KeystoreTokenCipher
 import io.github.dgproman.pihome.session.SessionGate
 import io.github.dgproman.pihome.session.SessionStore
@@ -26,10 +25,12 @@ class AppGraph(
     val scope: CoroutineScope,
     val hubs: Hubs,
     val localNetwork: LocalNetwork,
-    val scanner: InvitationScanner,
     val clock: Clock,
 ) {
     val gate = SessionGate(sessions, scope, hubs)
+
+    /** Invitations handed to the app from outside, waiting for the screens to take them. */
+    val incoming = IncomingInvitations()
 
     companion object {
         fun create(context: Context): AppGraph =
@@ -40,7 +41,6 @@ class AppGraph(
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
                 hubs = HttpHubs(),
                 localNetwork = AndroidLocalNetwork(context.applicationContext),
-                scanner = PlayServicesScanner(),
                 clock = Clock.systemDefaultZone(),
             )
     }

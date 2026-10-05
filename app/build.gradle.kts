@@ -70,7 +70,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
-    implementation(libs.play.services.code.scanner)
     implementation(libs.tink.android)
     debugImplementation(libs.androidx.compose.ui.tooling)
 

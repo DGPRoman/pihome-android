@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Android 17 and later: leave to reach devices on the network the phone is
@@ -21,30 +20,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pihome">
 
-        <!-- Has Play services fetch the code scanner when the app is installed,
-             rather than on the first scan. -->
-        <meta-data
-            android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="barcode_ui" />
-
-        <!-- The code scanner brings Google's data transport library, which would
-             send ML Kit's usage events to Google through this backend. Without it
-             they have nowhere to go and are dropped on the phone; scanning does
-             not depend on them. TransportLoggingTest holds this in place. -->
-        <service
-            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
-            tools:node="merge">
-            <meta-data
-                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
-                tools:node="remove" />
-        </service>
-
+        <!-- singleTop, so an invitation opened while the app is showing reaches
+             the one there is, in onNewIntent, rather than a second copy of it. -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- An invitation, handed over by the hub's join page:
+                 pihome://join?hub=<hub origin>&token=<invitation>. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="join"
+                    android:scheme="pihome" />
             </intent-filter>
         </activity>
     </application>
