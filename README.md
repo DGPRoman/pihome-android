@@ -9,9 +9,9 @@ the rules wiring them together — plus what a browser cannot offer, a Quick Set
 home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 
 > **Status: skeleton.** The build, its checks and CI are in place, and so are the client for
-> the hub's API, tested against recorded replies, and the app's frame: its screens, navigation,
-> and where it keeps a session, in English and Ukrainian. The app does not use the client yet —
-> see [Roadmap](#roadmap).
+> the hub's API, tested against recorded replies and against a running hub, and the app's
+> frame: its screens, navigation, and where it keeps a session, in English and Ukrainian. The
+> app does not use the client yet — see [Roadmap](#roadmap).
 
 ## Design notes
 
@@ -29,6 +29,14 @@ A POST is marked so that OkHttp cannot quietly repeat it either, because each of
 POSTs, from a login to an invitation being redeemed, must not happen twice. Redirects are
 never followed: the hub never sends one, so one is something else answering, such as a
 captive portal.
+
+**Checked against the hub itself.** Recorded replies prove the client matches what its
+author believed the hub says. A second suite runs the same client against a real hub —
+installed from its lockfile, on loopback, with throwaway keys and the mock relay backend —
+through one journey: logging in, switching relays, a sensor reading firing a rule, an admin
+inviting a second phone in, changing its role, disabling and deleting it. Pull requests run
+it against a pinned hub commit, and once a week it runs against the hub's `main`, to notice
+the two drifting apart.
 
 **Plain `http://` only at home.** A hub on the home network is usually reached without TLS.
 The client allows that only while every address the name resolves to is private — loopback,
@@ -62,12 +70,19 @@ point `ANDROID_HOME` at it, or let Android Studio write `local.properties`.
 ./gradlew spotlessApply                          # format
 ./gradlew spotlessCheck lint test assembleDebug  # what CI checks
 ./gradlew installDebug                           # onto a connected phone or emulator
+scripts/contract-test.sh                         # against a real hub, see below
 ```
 
 The tests run on the JVM: plain unit tests, and Compose UI tests on Robolectric, so neither
 CI nor a contributor needs an emulator. Lint treats warnings as errors. Commit messages
 follow Conventional Commits, checked by a hook shared with the sibling repositories — see
 [CONTRIBUTING.md](CONTRIBUTING.md).
+
+The contract tests need a checkout of [pihome-hub](https://github.com/DGPRoman/pihome-hub)
+beside this one, or `PIHOME_HUB_DIR` pointing at one, and Python 3.11 or later. The script
+installs the hub into a virtualenv under `build/`, starts a hub of its own on a free loopback
+port, runs `:hub-client:contractTest` and stops it again; nothing is read from the hub
+checkout's `.env` or database.
 
 ## Project layout
 
@@ -88,13 +103,17 @@ app/                           the Android application
     │   └── res/                   strings in two languages, icons, backup rules
     └── test/                      Robolectric and Compose tests
 hub-client/                    plain Kotlin: everything that talks to the hub
-└── src/main/kotlin/io/github/dgproman/pihome/hub/
-    ├── HubClient.kt           one call per route the app uses
-    ├── Transport.kt           timeouts, headers, status codes, sent-once writes
-    ├── HubAddress.kt          what may be typed in as a hub, and the http rule
-    ├── HomeNetwork.kt         which addresses count as home
-    ├── InvitationLink.kt      the /join#token links the web client builds
-    └── Session.kt, House.kt, Accounts.kt   what the hub answers
+└── src/
+    ├── main/kotlin/io/github/dgproman/pihome/hub/
+    │   ├── HubClient.kt       one call per route the app uses
+    │   ├── Transport.kt       timeouts, headers, status codes, sent-once writes
+    │   ├── HubAddress.kt      what may be typed in as a hub, and the http rule
+    │   ├── HomeNetwork.kt     which addresses count as home
+    │   ├── InvitationLink.kt  the /join#token links the web client builds
+    │   └── Session.kt, House.kt, Accounts.kt   what the hub answers
+    ├── test/                  against recorded replies
+    └── contractTest/          against a running hub, and the house it is started with
+scripts/contract-test.sh       starts that hub and runs them
 gradle/libs.versions.toml      every dependency version, exact
 .githooks/commit-msg           the commit rule
 ```
@@ -104,7 +123,7 @@ gradle/libs.versions.toml      every dependency version, exact
 | Phase | Scope                                                           | Issue          | Status     |
 | ----- | --------------------------------------------------------------- | -------------- | ---------- |
 | 1     | Build, checks and CI                                            | #1             | ✅ done    |
-| 2     | Hub client, tested against recorded replies and a real hub      | #2, #3         | 🚧 partly  |
+| 2     | Hub client, tested against recorded replies and a real hub      | #2, #3         | ✅ done    |
 | 3     | App shell: theme, navigation, session storage                   | #4             | ✅ done    |
 | 4     | Connecting: invitation, password, local-network permission      | #5             | planned    |
 | 5     | The house: relays, sensors, devices, rules                      | #6             | planned    |

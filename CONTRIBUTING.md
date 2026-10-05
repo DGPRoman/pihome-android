@@ -53,6 +53,15 @@ file over every commit in a pull request.
 ./gradlew spotlessCheck lint test assembleDebug
 ```
 
-CI runs the same tasks, and a release build besides. Lint treats warnings as errors; a
-warning that is wrong for this project is disabled in `app/build.gradle.kts` with the
-reason next to it, not suppressed where it fires.
+A change to `:hub-client` should also pass against a real hub:
+
+```bash
+scripts/contract-test.sh                # needs a pihome-hub checkout beside this one
+```
+
+CI runs the same tasks, and a release build besides, and the contract tests against the hub
+commit pinned in `.github/workflows/contract.yml`. When the client follows a change in the
+hub, move that pin in the same pull request.
+
+Lint treats warnings as errors; a warning that is wrong for this project is disabled in
+`app/build.gradle.kts` with the reason next to it, not suppressed where it fires.

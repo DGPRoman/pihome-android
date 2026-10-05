@@ -34,3 +34,27 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp.mockwebserver)
 }
+
+// The same client against a hub that is really running, to notice the day the hub
+// and the replies the tests above stand in for stop agreeing. Its own suite, so
+// `test` never needs a hub: scripts/contract-test.sh starts one and runs this.
+testing {
+    suites {
+        register<JvmTestSuite>("contractTest") {
+            useJUnit(libs.versions.junit4)
+            dependencies {
+                implementation(project())
+                implementation(libs.kotlin.test.junit)
+                implementation(libs.kotlinx.coroutines.test)
+            }
+            targets.configureEach {
+                testTask.configure {
+                    // Never up to date and never from the build cache: what is tested is
+                    // a hub started for this run, which Gradle cannot see as an input.
+                    doNotTrackState("each run is against a hub started for it")
+                    shouldRunAfter(tasks.test)
+                }
+            }
+        }
+    }
+}
