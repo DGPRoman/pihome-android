@@ -1,0 +1,22 @@
+# Gradle and Kotlin build output
+.gradle/
+.kotlin/
+build/
+
+# Machine-specific SDK location, written by Android Studio
+/local.properties
+
+# IDE state
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Signing material never belongs in the repository
+*.jks
+*.keystore
+keystore.properties
+
+# Operating system clutter
+.DS_Store
