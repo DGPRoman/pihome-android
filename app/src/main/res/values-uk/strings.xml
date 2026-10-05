@@ -2,14 +2,19 @@
 <resources>
     <!-- Signed out -->
     <string name="not_connected">Ще не підключено до хаба</string>
-    <string name="welcome_body">Попросіть запрошення в того, хто доглядає за вашим хабом, і відскануйте його код цим телефоном.</string>
+    <string name="welcome_body">Попросіть запрошення в того, хто доглядає за вашим хабом, і відскануйте його QR-код камерою телефона. Сторінка, яка відкриється, передасть запрошення цьому застосунку.</string>
 
     <!-- Signed out: the ways in -->
-    <string name="scan_invitation">Сканувати запрошення</string>
     <string name="paste_invitation">Вставити посилання-запрошення</string>
     <string name="log_in_with_password">Увійти з паролем</string>
-    <string name="scan_unavailable">Цей телефон зараз не може сканувати коди. Вставте посилання-запрошення.</string>
     <string name="not_an_invitation">Це не запрошення до хаба. Попросіть код або посилання ще раз.</string>
+
+    <!-- An invitation opened while this phone is signed in -->
+    <string name="incoming_title">Використати це запрошення?</string>
+    <string name="incoming_body">Цей телефон підключено до %1$s як %2$s. Якщо приєднатися за запрошенням, він вийде з цього акаунта.</string>
+    <string name="incoming_use">Використати запрошення</string>
+    <string name="incoming_keep">Лишити цей акаунт</string>
+    <string name="dismiss">Гаразд</string>
 
     <!-- Pasting an invitation link -->
     <string name="paste_title">Вставити запрошення</string>

@@ -35,6 +35,56 @@ class InvitationLinkTest {
     }
 
     @Test
+    fun `a link the join page hands the app gives the hub and the token`() {
+        val link = InvitationLink.parse("pihome://join?hub=http%3A%2F%2F192.168.1.20%3A5002&token=Ab3_-xYz").valid()
+
+        assertEquals("http://192.168.1.20:5002", link.hub.origin)
+        assertEquals("Ab3_-xYz", link.token.value)
+    }
+
+    @Test
+    fun `the app link may come unencoded, in either order, with any case of scheme`() {
+        val link = InvitationLink.parse("PIHOME://join?token=Ab3_-xYz&hub=https://hub.example.org").valid()
+
+        assertEquals("https://hub.example.org", link.hub.origin)
+        assertEquals("Ab3_-xYz", link.token.value)
+    }
+
+    @Test
+    fun `an app link without both values, once each, is not an invitation`() {
+        val texts =
+            listOf(
+                "pihome://join",
+                "pihome://join?hub=http%3A%2F%2Fhub.local",
+                "pihome://join?token=abc",
+                "pihome://join?hub=http%3A%2F%2Fhub.local&token=",
+                "pihome://join?hub=http%3A%2F%2Fhub.local&token=abc&token=def",
+                "pihome://join?hub=http%3A%2F%2Fhub.local&token=abc&extra=1",
+                "pihome://join?hub=http%3A%2F%2Fhub.local&token=%ZZ",
+                "pihome://join/more?hub=http%3A%2F%2Fhub.local&token=abc",
+                "pihome://joined?hub=http%3A%2F%2Fhub.local&token=abc",
+                "pihome://join?hub=http%3A%2F%2Fhub.local&token=abc#more",
+                "pihome:join",
+                "pihome://join?hub=http://hub.local&token=a b",
+            )
+        for (text in texts) {
+            assertEquals(Parsed.Invalid(InputProblem.NOT_AN_INVITATION), InvitationLink.parse(text), text)
+        }
+    }
+
+    @Test
+    fun `the hub in an app link is held to the address rules too`() {
+        assertEquals(
+            Parsed.Invalid(InputProblem.PUBLIC_OVER_PLAIN_HTTP),
+            InvitationLink.parse("pihome://join?hub=http%3A%2F%2F203.0.113.9%3A5002&token=abc"),
+        )
+        assertEquals(
+            Parsed.Invalid(InputProblem.MORE_THAN_AN_ADDRESS),
+            InvitationLink.parse("pihome://join?hub=http%3A%2F%2Fhub.local%2Fjoin&token=abc"),
+        )
+    }
+
+    @Test
     fun `nothing at all is blank`() {
         assertEquals(Parsed.Invalid(InputProblem.BLANK), InvitationLink.parse(" "))
     }

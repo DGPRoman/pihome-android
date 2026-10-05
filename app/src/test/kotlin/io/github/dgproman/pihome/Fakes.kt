@@ -1,9 +1,6 @@
 package io.github.dgproman.pihome
 
-import android.content.Context
-import io.github.dgproman.pihome.connect.InvitationScanner
 import io.github.dgproman.pihome.connect.LocalNetwork
-import io.github.dgproman.pihome.connect.Scan
 import io.github.dgproman.pihome.hub.Account
 import io.github.dgproman.pihome.hub.AccountChange
 import io.github.dgproman.pihome.hub.AutomationRule
@@ -123,13 +120,6 @@ class FakeLocalNetwork(
     var granted: Boolean = false,
 ) : LocalNetwork {
     override suspend fun mustAsk(address: HubAddress): Boolean = local && !granted
-}
-
-/** A scanner that reads whatever the test holds up to it. */
-class FakeScanner(
-    var next: Scan = Scan.Cancelled,
-) : InvitationScanner {
-    override suspend fun scan(context: Context): Scan = next
 }
 
 /** A clock a test moves by hand. */

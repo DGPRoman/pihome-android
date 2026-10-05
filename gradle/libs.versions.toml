@@ -14,7 +14,6 @@ kotlinxSerialization = "1.11.0"
 lifecycle = "2.11.0"
 navigation3 = "1.2.0"
 okhttp = "5.5.0"
-playServicesCodeScanner = "16.1.0"
 tink = "1.23.0"
 androidxTestCore = "1.7.0"
 espresso = "3.7.0"
@@ -47,7 +46,6 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver3", version.ref = "okhttp" }
-play-services-code-scanner = { module = "com.google.android.gms:play-services-code-scanner", version.ref = "playServicesCodeScanner" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 tink-android = { module = "com.google.crypto.tink:tink-android", version.ref = "tink" }
 

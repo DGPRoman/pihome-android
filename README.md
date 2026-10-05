@@ -8,7 +8,7 @@ the relays, what the sensors last reported, whether the hub can still reach its 
 the rules wiring them together — plus what a browser cannot offer, a Quick Settings tile, a
 home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 
-> **Status: connects, shows nothing yet.** A phone joins a hub by scanning an invitation, or an
+> **Status: connects, shows nothing yet.** A phone joins a hub by opening an invitation, or an
 > admin logs in with a password, and the app keeps that session, checks it with the hub each
 > time it comes into view, and shows who it is and when it ends. The house itself — relays,
 > sensors, devices, rules — is next; see [Roadmap](#roadmap).
@@ -44,9 +44,15 @@ so Android's own block on it is lifted, and the client takes its place: it allow
 RFC 1918, `100.64.0.0/10`, link-local or IPv6 unique local — checked as it connects, so a
 name that starts resolving elsewhere is refused. Anything else needs `https://`.
 
-**An invitation is spent once, so it is sent once.** Most people arrive with an invitation
-the web client shows as a QR code, scanned with Google's code scanner, which runs in Play
-services and needs no camera permission here; a link can be pasted instead. The hub spends an
+**An invitation opens the app from the phone's camera.** An admin shows an invitation as a QR
+code holding the hub's own `/join#…` link. Scanned with the phone's camera, it opens the hub's
+join page, which on Android hands the invitation to this app as a `pihome://join?…` link, or
+offers the app for download from the hub when it is not installed yet. Nothing goes through a
+store or a third party, and the app itself has no scanner, no camera permission and no Google
+Play services. An `https` App Link would skip the browser, but Android verifies those against
+a public domain, which a hub at home does not have. A link can also be pasted.
+
+**An invitation is spent once, so it is sent once.** The hub spends an
 invitation on its first use, refused or not, so the app names the hub and waits for Join,
 never sends one twice, and tells a refusal, an invitation that ran out and a reply that never
 came apart. Before an invitation or a password is sent anywhere, the address has to answer
@@ -65,9 +71,8 @@ session on the phone first and then ends it on the hub, so it never waits for a 
 out of reach.
 
 **Nothing leaves the phone.** Cloud backups and device-to-device transfers are off. A new
-phone joins with an invitation of its own rather than inheriting another's session. The code
-scanner's library would send its usage events to Google; the app removes the backend they go
-through, so they are dropped on the phone, and a test fails if a dependency adds one back.
+phone joins with an invitation of its own rather than inheriting another's session. No Google
+library is in the app to send anything either, and a test fails if a dependency brings one.
 
 **One secret, encrypted by the Keystore.** The session token is stored in DataStore encrypted
 with AES-GCM under a key that lives in the Android Keystore and cannot be read out of it, with
@@ -119,7 +124,7 @@ app/                           the Android application
     │   │   ├── AppGraph.kt        everything the app is made of, wired by hand
     │   │   ├── Hubs.kt            where a hub client comes from, one HTTP client for all
     │   │   ├── MainActivity.kt    the one activity
-    │   │   ├── connect/           joining, logging in, the scanner, the local network
+    │   │   ├── connect/           joining, logging in, invitations arriving, the local network
     │   │   ├── session/           the encrypted session, and the gate above the screens
     │   │   └── ui/
     │   │       ├── PihomeApp.kt   signed out or in, each with its own back stack
@@ -136,7 +141,7 @@ hub-client/                    plain Kotlin: everything that talks to the hub
     │   ├── Transport.kt       timeouts, headers, status codes, sent-once writes
     │   ├── HubAddress.kt      what may be typed in as a hub, and the http rule
     │   ├── HomeNetwork.kt     which addresses count as home, and need the permission
-    │   ├── InvitationLink.kt  the /join#token links the web client builds
+    │   ├── InvitationLink.kt  /join#token links, and the pihome://join links the join page sends
     │   └── Session.kt, House.kt, Accounts.kt   what the hub answers
     ├── test/                  against recorded replies
     └── contractTest/          against a running hub, and the house it is started with

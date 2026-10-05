@@ -2,10 +2,18 @@ package io.github.dgproman.pihome.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -17,11 +25,15 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import io.github.dgproman.pihome.AppGraph
+import io.github.dgproman.pihome.R
+import io.github.dgproman.pihome.connect.Incoming
 import io.github.dgproman.pihome.connect.JoinViewModel
 import io.github.dgproman.pihome.connect.LogInViewModel
+import io.github.dgproman.pihome.hub.InputProblem
 import io.github.dgproman.pihome.hub.InvitationLink
 import io.github.dgproman.pihome.session.Gate
 import io.github.dgproman.pihome.session.SavedSession
+import io.github.dgproman.pihome.ui.connect.linkMessageFor
 import io.github.dgproman.pihome.ui.screens.AccountScreen
 import io.github.dgproman.pihome.ui.screens.HouseScreen
 import io.github.dgproman.pihome.ui.screens.JoinScreen
@@ -79,13 +91,39 @@ private fun SignedOut(graph: AppGraph) {
     val backStack = rememberNavBackStack(Welcome)
     val back: () -> Unit = { backStack.removeLastOrNull() }
     val join: (InvitationLink) -> Unit = { link -> backStack.add(Join(link, graph.clock.millis())) }
+    var problem by rememberSaveable { mutableStateOf<InputProblem?>(null) }
+
+    // An invitation handed to the app starts over from the first screen, on its
+    // own join screen, whatever was open: it is what the person just asked for.
+    val incoming by graph.incoming.next.collectAsStateWithLifecycle()
+    LaunchedEffect(incoming) {
+        val arrived = incoming ?: return@LaunchedEffect
+        while (backStack.size > 1) backStack.removeLastOrNull()
+        when (arrived) {
+            is Incoming.Invitation -> {
+                problem = null
+                backStack.add(Join(arrived.link, arrived.receivedAt.toEpochMilli()))
+            }
+
+            is Incoming.Broken -> {
+                problem = arrived.problem
+            }
+        }
+        graph.incoming.take(arrived)
+    }
+
     Navigation(backStack) {
         entry<Welcome> {
             WelcomeScreen(
-                scanner = graph.scanner,
-                onInvitation = join,
-                onPaste = { backStack.add(PasteInvitation) },
-                onLogIn = { backStack.add(LogIn) },
+                problem = problem,
+                onPaste = {
+                    problem = null
+                    backStack.add(PasteInvitation)
+                },
+                onLogIn = {
+                    problem = null
+                    backStack.add(LogIn)
+                },
             )
         }
         entry<PasteInvitation> {
@@ -127,6 +165,7 @@ private fun SignedIn(
     version: String,
 ) {
     val backStack = rememberNavBackStack(House)
+    IncomingWhileSignedIn(graph, saved)
     Navigation(backStack) {
         entry<House> { HouseScreen(hub = saved.address.origin, onAccount = { backStack.add(Account) }) }
         entry<Account> {
@@ -136,6 +175,46 @@ private fun SignedIn(
                 clock = graph.clock,
                 onBack = { backStack.removeLastOrNull() },
                 onSignOut = { graph.gate.signOut() },
+            )
+        }
+    }
+}
+
+/**
+ * An invitation handed to the app while it is signed in, asked about first:
+ * using it signs this phone out of the account it has. Signing out leaves the
+ * invitation waiting, for the signed-out half to open.
+ */
+@Composable
+private fun IncomingWhileSignedIn(
+    graph: AppGraph,
+    saved: SavedSession,
+) {
+    val incoming by graph.incoming.next.collectAsStateWithLifecycle()
+    when (val arrived = incoming) {
+        null -> {}
+
+        is Incoming.Invitation -> {
+            AlertDialog(
+                onDismissRequest = { graph.incoming.take(arrived) },
+                title = { Text(stringResource(R.string.incoming_title)) },
+                text = { Text(stringResource(R.string.incoming_body, saved.address.origin, saved.session.username)) },
+                confirmButton = {
+                    TextButton(onClick = { graph.gate.signOut() }) { Text(stringResource(R.string.incoming_use)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { graph.incoming.take(arrived) }) { Text(stringResource(R.string.incoming_keep)) }
+                },
+            )
+        }
+
+        is Incoming.Broken -> {
+            AlertDialog(
+                onDismissRequest = { graph.incoming.take(arrived) },
+                text = { Text(stringResource(linkMessageFor(arrived.problem))) },
+                confirmButton = {
+                    TextButton(onClick = { graph.incoming.take(arrived) }) { Text(stringResource(R.string.dismiss)) }
+                },
             )
         }
     }
