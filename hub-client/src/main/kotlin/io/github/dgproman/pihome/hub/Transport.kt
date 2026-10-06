@@ -218,10 +218,10 @@ private val BODILESS = setOf(204, 205)
 /**
  * The kind of failure a status means, or null for a reply to read.
  *
- * As the web client decides it, with one difference. The hub itself answers 503,
- * as JSON, when a relay or its storage fails, and that is the hub saying "not
- * now" rather than a gateway saying it could not reach the hub, so only a 502,
- * 503 or 504 that is not JSON counts as [HubErrorKind.OFFLINE].
+ * As the web client decides it. The hub itself answers 503, as JSON, when a
+ * relay or its storage fails, and that is the hub saying "not now" rather than
+ * a gateway saying it could not reach the hub, so only a 502, 503 or 504 that
+ * is not JSON counts as [HubErrorKind.OFFLINE].
  */
 internal fun kindFor(
     status: Int,
