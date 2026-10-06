@@ -17,6 +17,8 @@ import io.github.dgproman.pihome.hub.Sensor
 import io.github.dgproman.pihome.hub.Session
 import io.github.dgproman.pihome.hub.SessionToken
 import io.github.dgproman.pihome.hub.SignedIn
+import io.github.dgproman.pihome.quick.LightsChoice
+import io.github.dgproman.pihome.quick.LightsChoices
 import io.github.dgproman.pihome.quick.RelayNews
 import io.github.dgproman.pihome.quick.RelayShortcut
 import io.github.dgproman.pihome.quick.ShortcutShelf
@@ -191,6 +193,21 @@ class FakeTileChoices(
     override val choice: Flow<TileChoice?> = held
 
     override suspend fun choose(choice: TileChoice?) {
+        held.value = choice
+    }
+}
+
+/** The All lights shortcut's relays, kept in memory. */
+class FakeLightsChoices(
+    initial: LightsChoice? = null,
+) : LightsChoices {
+    private val held = MutableStateFlow(initial)
+
+    val current: LightsChoice? get() = held.value
+
+    override val choice: Flow<LightsChoice?> = held
+
+    override suspend fun choose(choice: LightsChoice?) {
         held.value = choice
     }
 }

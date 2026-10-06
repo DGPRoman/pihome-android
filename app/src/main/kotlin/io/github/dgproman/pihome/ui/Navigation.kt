@@ -54,3 +54,7 @@ data object People : NavKey
 /** Signed in: which relay the Quick Settings tile switches. */
 @Serializable
 data object TileSettings : NavKey
+
+/** Signed in: which relays the All lights shortcut switches. */
+@Serializable
+data object LightsSettings : NavKey

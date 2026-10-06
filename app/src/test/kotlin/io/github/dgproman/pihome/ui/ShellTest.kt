@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import io.github.dgproman.pihome.AppGraph
 import io.github.dgproman.pihome.FakeHubs
+import io.github.dgproman.pihome.FakeLightsChoices
 import io.github.dgproman.pihome.FakeLocalNetwork
 import io.github.dgproman.pihome.FakeShortcutShelf
 import io.github.dgproman.pihome.FakeTileChoices
@@ -128,7 +129,8 @@ class ShellTest(
     }
 
     private fun show() {
-        val graph = AppGraph(store, scope, hubs, FakeLocalNetwork(), TestClock(), FakeTileChoices(), shortcutShelf = shelf)
+        val graph =
+            AppGraph(store, scope, hubs, FakeLocalNetwork(), TestClock(), FakeTileChoices(), FakeLightsChoices(), shortcutShelf = shelf)
         var surface = Color.Unspecified
         compose.setContent {
             PihomeTheme {

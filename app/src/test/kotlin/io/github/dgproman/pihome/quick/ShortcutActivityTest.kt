@@ -37,19 +37,30 @@ class ShortcutActivityTest {
     }
 
     @Test
-    fun `all off in shortcuts xml starts the activity with all off's action`() {
+    fun `the shortcuts in shortcuts xml start the activity with their own actions`() {
         val parser = context.resources.getXml(R.xml.shortcuts)
-        val found = mutableMapOf<String, String>()
+        val shortcuts = mutableListOf<MutableMap<String, String>>()
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
             if (parser.eventType != XmlPullParser.START_TAG) continue
-            for (i in 0 until parser.attributeCount) found["${parser.name}.${parser.getAttributeName(i)}"] = parser.getAttributeValue(i)
+            if (parser.name == "shortcut") shortcuts += mutableMapOf()
+            for (i in 0 until parser.attributeCount) {
+                shortcuts.lastOrNull()?.set("${parser.name}.${parser.getAttributeName(i)}", parser.getAttributeValue(i))
+            }
         }
 
-        assertEquals(ShortcutActivity.ALL_OFF_ID, found["shortcut.shortcutId"])
-        assertEquals(ShortcutActivity.ACTION_ALL_OFF, found["intent.action"])
-        assertEquals(ShortcutActivity::class.java.name, found["intent.targetClass"])
-        assertEquals(context.packageName, found["intent.targetPackage"])
-        assertEquals(ShortcutRequest.AllOff, ShortcutActivity.requestOf(Intent(found["intent.action"])))
+        assertEquals(
+            mapOf(
+                ShortcutActivity.LIGHTS_ID to ShortcutActivity.ACTION_LIGHTS,
+                ShortcutActivity.ALL_OFF_ID to ShortcutActivity.ACTION_ALL_OFF,
+            ),
+            shortcuts.associate { it["shortcut.shortcutId"] to it["intent.action"] },
+        )
+        shortcuts.forEach {
+            assertEquals(ShortcutActivity::class.java.name, it["intent.targetClass"])
+            assertEquals(context.packageName, it["intent.targetPackage"])
+        }
+        assertEquals(ShortcutRequest.Lights, ShortcutActivity.requestOf(Intent(ShortcutActivity.ACTION_LIGHTS)))
+        assertEquals(ShortcutRequest.AllOff, ShortcutActivity.requestOf(Intent(ShortcutActivity.ACTION_ALL_OFF)))
     }
 
     @Test

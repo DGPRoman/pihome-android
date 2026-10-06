@@ -266,6 +266,13 @@
     <string name="tile_added">The tile is in Quick Settings.</string>
     <string name="tile_already_added">The tile is already in Quick Settings.</string>
     <string name="tile_add_failed">Android did not add the tile. Add it by editing Quick Settings.</string>
+    <!-- Choosing the All lights shortcut's relays -->
+    <string name="lights_title">All lights shortcut</string>
+    <string name="lights_body">A long press on the app\'s icon offers All lights. If any of its relays is on, it switches them off; if all are off, it switches them on.</string>
+    <string name="lights_viewer">Your account can see the house but not change it, so the shortcut only opens the app. An admin can make it an operator.</string>
+    <string name="lights_relays">Its relays</string>
+    <string name="lights_every_relay">Every relay, including any the hub gains later.</string>
+    <string name="lights_some_relays">Only the relays ticked here.</string>
     <!-- Launcher shortcuts, behind a long press on the app's icon -->
     <string name="shortcut_all_off_long">Switch every relay off</string>
     <!-- %1$s is the relay's name -->
@@ -279,6 +286,12 @@
     <string name="shortcut_gone">%1$s is no longer on the hub. Its shortcut can be removed from the home screen.</string>
     <string name="shortcut_close">Close</string>
     <string name="shortcut_open_app">Open the app</string>
+    <string name="shortcut_lights">All lights</string>
+    <string name="shortcut_lights_long">Switch the lights on or off</string>
+    <string name="shortcut_lights_on">The lights are on.</string>
+    <string name="shortcut_lights_off">The lights are off.</string>
+    <string name="shortcut_lights_unsure">No usable answer came back, so the lights may have been switched. Open the app to see.</string>
+    <string name="shortcut_no_lights">None of this shortcut\'s relays is on the hub. Choose them again in the app.</string>
 
     <!-- The home-screen widget -->
     <string name="widget_description">Your relays, with switches, and what your sensors last reported.</string>

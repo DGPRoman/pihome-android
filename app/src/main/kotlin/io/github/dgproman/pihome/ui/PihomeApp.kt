@@ -35,6 +35,7 @@ import io.github.dgproman.pihome.hub.InputProblem
 import io.github.dgproman.pihome.hub.InvitationLink
 import io.github.dgproman.pihome.people.PeopleViewModel
 import io.github.dgproman.pihome.people.mayManagePeople
+import io.github.dgproman.pihome.quick.LightsSettingsViewModel
 import io.github.dgproman.pihome.quick.TileSettingsViewModel
 import io.github.dgproman.pihome.session.Gate
 import io.github.dgproman.pihome.session.SavedSession
@@ -42,6 +43,7 @@ import io.github.dgproman.pihome.ui.connect.linkMessageFor
 import io.github.dgproman.pihome.ui.screens.AccountScreen
 import io.github.dgproman.pihome.ui.screens.HouseScreen
 import io.github.dgproman.pihome.ui.screens.JoinScreen
+import io.github.dgproman.pihome.ui.screens.LightsScreen
 import io.github.dgproman.pihome.ui.screens.LogInScreen
 import io.github.dgproman.pihome.ui.screens.PasteInvitationScreen
 import io.github.dgproman.pihome.ui.screens.PeopleScreen
@@ -221,6 +223,7 @@ private fun SignedIn(
                 onBack = { backStack.removeLastOrNull() },
                 onSignOut = { graph.gate.signOut() },
                 onTile = { backStack.add(TileSettings) },
+                onLights = { backStack.add(LightsSettings) },
             )
         }
         entry<TileSettings> {
@@ -235,6 +238,18 @@ private fun SignedIn(
                     )
                 }
             TileScreen(model, mayChange = saved.session.role.mayChangeTheHouse, onBack = { backStack.removeLastOrNull() })
+        }
+        entry<LightsSettings> {
+            val model =
+                viewModel {
+                    LightsSettingsViewModel(
+                        hub = graph.hubs.at(saved.address, saved.token),
+                        choices = graph.lightsChoices,
+                        clock = graph.clock,
+                        onRefused = { graph.gate.refused(saved.token) },
+                    )
+                }
+            LightsScreen(model, mayChange = saved.session.role.mayChangeTheHouse, onBack = { backStack.removeLastOrNull() })
         }
     }
 }

@@ -48,7 +48,7 @@ fun ShortcutDialog(
                 openApp()
             }
 
-            is ShortcutResult.Switched, ShortcutResult.AllOff -> {
+            is ShortcutResult.Switched, ShortcutResult.AllOff, is ShortcutResult.Lights -> {
                 val shown = SHOWN_FOR_MILLIS
                 delay(accessibility?.calculateRecommendedTimeoutMillis(shown, containsText = true, containsControls = true) ?: shown)
                 close()
@@ -61,16 +61,17 @@ fun ShortcutDialog(
     val title =
         when (request) {
             ShortcutRequest.AllOff -> stringResource(R.string.all_off)
+            ShortcutRequest.Lights -> stringResource(R.string.shortcut_lights)
             is ShortcutRequest.Switch -> request.relay.name
         }
-    val mayOpenApp = result is ShortcutResult.Unsure || result is ShortcutResult.Failed
+    val mayOpenApp = result is ShortcutResult.Unsure || result is ShortcutResult.Failed || result == ShortcutResult.NoLights
     AlertDialog(
         onDismissRequest = onClose,
         title = { Text(title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(
-                    sayWhat(result),
+                    sayWhat(request, result),
                     Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                 )
                 if (result == null) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -87,7 +88,10 @@ fun ShortcutDialog(
 }
 
 @Composable
-private fun sayWhat(result: ShortcutResult?): String =
+private fun sayWhat(
+    request: ShortcutRequest,
+    result: ShortcutResult?,
+): String =
     when (result) {
         null, ShortcutResult.OpenApp -> {
             stringResource(R.string.shortcut_asking)
@@ -101,9 +105,25 @@ private fun sayWhat(result: ShortcutResult?): String =
             stringResource(R.string.shortcut_all_off_done)
         }
 
+        is ShortcutResult.Lights -> {
+            stringResource(if (result.on) R.string.shortcut_lights_on else R.string.shortcut_lights_off)
+        }
+
+        ShortcutResult.NoLights -> {
+            stringResource(R.string.shortcut_no_lights)
+        }
+
         is ShortcutResult.Unsure -> {
             result.name?.let { stringResource(R.string.shortcut_unsure, it) }
-                ?: stringResource(R.string.shortcut_all_off_unsure)
+                ?: stringResource(
+                    if (request ==
+                        ShortcutRequest.Lights
+                    ) {
+                        R.string.shortcut_lights_unsure
+                    } else {
+                        R.string.shortcut_all_off_unsure
+                    },
+                )
         }
 
         is ShortcutResult.Gone -> {

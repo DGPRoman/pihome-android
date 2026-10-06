@@ -64,10 +64,14 @@ class ShortcutActivity : ComponentActivity() {
     companion object {
         /** In shortcuts.xml as well, which cannot refer to these. */
         const val ACTION_ALL_OFF = "io.github.dgproman.pihome.action.ALL_OFF"
+        const val ACTION_LIGHTS = "io.github.dgproman.pihome.action.LIGHTS"
         const val ACTION_SWITCH = "io.github.dgproman.pihome.action.SWITCH_RELAY"
 
         /** All off's id in shortcuts.xml. */
         const val ALL_OFF_ID = "all_off"
+
+        /** All lights' id in shortcuts.xml. */
+        const val LIGHTS_ID = "lights"
 
         private const val EXTRA_HUB = "hub"
         private const val EXTRA_RELAY = "relay"
@@ -91,6 +95,10 @@ class ShortcutActivity : ComponentActivity() {
                     ShortcutRequest.AllOff
                 }
 
+                ACTION_LIGHTS -> {
+                    ShortcutRequest.Lights
+                }
+
                 ACTION_SWITCH -> {
                     val hub = intent.getStringExtra(EXTRA_HUB)
                     val relay = intent.getStringExtra(EXTRA_RELAY)
@@ -111,6 +119,7 @@ class ShortcutActivity : ComponentActivity() {
         private fun idOf(request: ShortcutRequest): String =
             when (request) {
                 ShortcutRequest.AllOff -> ALL_OFF_ID
+                ShortcutRequest.Lights -> LIGHTS_ID
                 is ShortcutRequest.Switch -> request.relay.id
             }
     }

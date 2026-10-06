@@ -73,7 +73,7 @@ class AndroidShortcutShelf(
 ) : ShortcutShelf {
     override fun put(shortcuts: List<RelayShortcut>): Boolean {
         val manager = context.getSystemService(ShortcutManager::class.java) ?: return false
-        // All off, from shortcuts.xml, takes one of the places.
+        // All lights and All off, from shortcuts.xml, take two of the places.
         val room = (manager.maxShortcutCountPerActivity - STATIC_SHORTCUTS).coerceAtLeast(0)
         val infos =
             shortcuts.take(room).mapIndexed { rank, shortcut ->
@@ -100,7 +100,7 @@ class AndroidShortcutShelf(
     }
 
     private companion object {
-        const val STATIC_SHORTCUTS = 1
+        const val STATIC_SHORTCUTS = 2
         const val TAG = "Shortcuts"
     }
 }

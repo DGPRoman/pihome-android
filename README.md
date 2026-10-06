@@ -14,8 +14,8 @@ home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 > reach its devices, and the automation rules, read every ten seconds while the screen is
 > open. An admin adds people and hands them an invitation as a QR code or a link. A Quick
 > Settings tile switches one relay without opening the app, a long press on the app's icon
-> offers All off and one shortcut per relay, and a home-screen widget shows the relays with
-> their switches and what the sensors last reported. Releases are signed APKs; see
+> offers All lights, All off and one shortcut per relay, and a home-screen widget shows the
+> relays with their switches and what the sensors last reported. Releases are signed APKs; see
 > [Installing](#installing).
 
 ## Installing
@@ -146,9 +146,12 @@ switch with no answer in that time says it is not sure, and a refused session en
 whole app, as on any screen. A switch still under way when the shade closes finishes, and the
 tile shows how it ended.
 
-**A shortcut says what came of it.** A long press on the app's icon offers All off and one
-shortcut per relay, which switches it to the state it is not in. The list follows the relays
-each time the app reads them, and is emptied on signing out; a viewer is offered none. A
+**A shortcut says what came of it.** A long press on the app's icon offers All lights, All off
+and one shortcut per relay, which switches it to the state it is not in. All lights switches its
+relays off if any of them is on, and on if all are off, writing only those not already that
+way; which relays it means is chosen in the app, per hub, and until one is left out it means
+every relay, those the hub gains later included. The per-relay list follows the relays each
+time the app reads them, and is emptied on signing out; a viewer is offered none. A
 shortcut opens a small window that says what it is doing and what the hub answered, and closes
 by itself only when it worked, later for somebody who has asked Android for more time to read.
 The rules are the tile's: with no session, a viewer's account or no leave to reach the network
