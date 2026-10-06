@@ -5,6 +5,34 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+/**
+ * The version a release tag gives, as `-Ppihome.version=1.2.3` from tag v1.2.3.
+ *
+ * The version code grows with the version, so each release installs over the
+ * one before it: 1.2.3 is 1002003. Each part stays under 1000 for that to hold,
+ * and the major version can only go to 999, well within Android's cap.
+ */
+data class Release(
+    val name: String,
+    val code: Int,
+)
+
+val release: Release? =
+    providers.gradleProperty("pihome.version").orNull?.let { name ->
+        val parts =
+            Regex("""(\d{1,3})\.(\d{1,3})\.(\d{1,3})""")
+                .matchEntire(name)
+                ?.groupValues
+                ?.drop(1)
+                ?.map(String::toInt)
+                ?: error("pihome.version must be major.minor.patch, each part 0 to 999, not \"$name\"")
+        val (major, minor, patch) = parts
+        val code = major * 1_000_000 + minor * 1_000 + patch
+        // A local build is 1, so even the first release installs over one.
+        require(code > 1) { "pihome.version $name is below the first release there can be" }
+        Release(name, code)
+    }
+
 android {
     namespace = "io.github.dgproman.pihome"
     compileSdk = 37
@@ -13,8 +41,32 @@ android {
         applicationId = "io.github.dgproman.pihome"
         minSdk = 28
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = release?.code ?: 1
+        versionName = release?.name ?: "0.1.0"
+    }
+
+    signingConfigs {
+        // Only in the release workflow, which writes the key from its secrets to a
+        // file outside the checkout. Anywhere else the release build is unsigned.
+        val keystore = providers.environmentVariable("PIHOME_KEYSTORE").orNull
+        if (keystore != null) {
+            create("release") {
+                storeFile = file(keystore)
+                // PKCS12, the keytool default, has one password for the store and its key.
+                storePassword = providers.environmentVariable("PIHOME_KEYSTORE_PASSWORD").get()
+                keyAlias = "pihome"
+                keyPassword = storePassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.findByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
     }
 
     compileOptions {

@@ -36,15 +36,16 @@ jobs:
       - name: Format check
         run: ./gradlew spotlessCheck
 
-      # Lint compiles every module first, so a type error fails here too.
+      # Lint compiles every module first, so a type error fails here too. The release
+      # variant as well, since that is the one that ships.
       - name: Lint
-        run: ./gradlew lint
+        run: ./gradlew lint lintRelease
 
       - name: Ensure no signing material is tracked
         # A committed key cannot be un-published, so this is checked on every run
         # rather than trusting .gitignore to stay correct.
         run: |
-          tracked="$(git ls-files '*.jks' '*.keystore' 'keystore.properties' 'local.properties')"
+          tracked="$(git ls-files '*.jks' '*.keystore' '*.p12' 'keystore.properties' 'local.properties')"
           if [ -n "$tracked" ]; then
             echo "::error::signing material or a local SDK path is tracked by git:"
             echo "$tracked"
