@@ -15,6 +15,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import io.github.dgproman.pihome.AppGraph
 import io.github.dgproman.pihome.FakeHubs
+import io.github.dgproman.pihome.FakeLightsChoices
 import io.github.dgproman.pihome.FakeLocalNetwork
 import io.github.dgproman.pihome.FakeTileChoices
 import io.github.dgproman.pihome.R
@@ -87,7 +88,7 @@ class ConnectTest(
     }
 
     private fun show() {
-        graph = AppGraph(store, scope, hubs, network, clock, FakeTileChoices())
+        graph = AppGraph(store, scope, hubs, network, clock, FakeTileChoices(), FakeLightsChoices())
         compose.setContent { PihomeTheme { PihomeApp(graph, version = "0.1.0") } }
     }
 

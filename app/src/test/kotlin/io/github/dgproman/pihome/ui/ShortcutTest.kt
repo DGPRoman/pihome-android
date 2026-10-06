@@ -110,6 +110,38 @@ class ShortcutTest(
     }
 
     @Test
+    fun `all lights says which way they went, and closes on its own`() {
+        compose.mainClock.autoAdvance = false
+        result = ShortcutResult.Lights(on = true)
+        show(ShortcutRequest.Lights)
+        compose.mainClock.advanceTimeByFrame()
+
+        compose.onNodeWithText(text(R.string.shortcut_lights)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.shortcut_lights_on)).assertIsDisplayed()
+        compose.mainClock.advanceTimeBy(3_000)
+        assertEquals(1, closed)
+    }
+
+    @Test
+    fun `all lights that may have happened says so`() {
+        result = ShortcutResult.Unsure(null)
+        show(ShortcutRequest.Lights)
+
+        compose.onNodeWithText(text(R.string.shortcut_lights_unsure)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `all lights with none of its relays on the hub says so, and offers the app`() {
+        result = ShortcutResult.NoLights
+        show(ShortcutRequest.Lights)
+
+        compose.onNodeWithText(text(R.string.shortcut_no_lights)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.shortcut_open_app)).performClick()
+        assertEquals(1, opened)
+        assertEquals(0, closed)
+    }
+
+    @Test
     fun `a relay that has gone says so`() {
         result = ShortcutResult.Gone("Porch light")
         show()

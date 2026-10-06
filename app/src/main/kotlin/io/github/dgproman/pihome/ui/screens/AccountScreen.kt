@@ -40,6 +40,7 @@ fun AccountScreen(
     onBack: () -> Unit,
     onSignOut: () -> Unit,
     onTile: () -> Unit = {},
+    onLights: () -> Unit = {},
 ) {
     val locale = LocalConfiguration.current.locales[0]
     val ends =
@@ -72,6 +73,9 @@ fun AccountScreen(
         Fact(stringResource(R.string.account_version), version)
         OutlinedButton(onClick = onTile) {
             Text(stringResource(R.string.tile_title))
+        }
+        OutlinedButton(onClick = onLights) {
+            Text(stringResource(R.string.lights_title))
         }
         OutlinedButton(onClick = onSignOut) {
             Text(stringResource(R.string.sign_out))

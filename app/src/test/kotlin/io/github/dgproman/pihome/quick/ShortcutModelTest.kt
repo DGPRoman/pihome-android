@@ -1,6 +1,7 @@
 package io.github.dgproman.pihome.quick
 
 import io.github.dgproman.pihome.FakeHubs
+import io.github.dgproman.pihome.FakeLightsChoices
 import io.github.dgproman.pihome.FakeLocalNetwork
 import io.github.dgproman.pihome.FakeShortcutShelf
 import io.github.dgproman.pihome.HeardNews
@@ -36,6 +37,7 @@ class ShortcutModelTest {
     private val hubs = FakeHubs()
     private val network = FakeLocalNetwork()
     private val shelf = FakeShortcutShelf()
+    private val lights = FakeLightsChoices()
     private val porch = Relay("porch", "Porch light", on = false)
     private val gateLight = Relay("gate", "Gate", on = true)
     private val porchShortcut = ShortcutRequest.Switch(RelayShortcut(HOME.address.origin, "porch", "Porch light"))
@@ -61,7 +63,7 @@ class ShortcutModelTest {
         if (saved != null) store.save(saved)
         gate = SessionGate(store, backgroundScope, hubs)
         gate.state.first { it != Gate.Loading }
-        return ShortcutModel(QuickActions(gate, network, hubs), RelayShortcuts(shelf))
+        return ShortcutModel(QuickActions(gate, network, hubs), RelayShortcuts(shelf), lights)
     }
 
     @Test
@@ -192,11 +194,98 @@ class ShortcutModelTest {
         runTest {
             model()
             val news = HeardNews()
-            val model = ShortcutModel(QuickActions(gate, network, hubs), news)
+            val model = ShortcutModel(QuickActions(gate, network, hubs), news, lights)
 
             model.run(porchShortcut)
             model.run(ShortcutRequest.AllOff)
 
             assertEquals(listOf("all porch=false gate=true", "one porch=true", "all porch=false gate=false"), news.heard)
+        }
+
+    @Test
+    fun `all lights switches every relay off while any is on, writing only those that are on`() =
+        runTest {
+            val model = model()
+
+            assertEquals(ShortcutResult.Lights(on = false), model.run(ShortcutRequest.Lights))
+            assertEquals(listOf("relays", "set gate false"), hubs.calls)
+        }
+
+    @Test
+    fun `all lights switches every relay on when all are off`() =
+        runTest {
+            onHub = listOf(porch, gateLight.copy(on = false))
+            val model = model()
+
+            assertEquals(ShortcutResult.Lights(on = true), model.run(ShortcutRequest.Lights))
+            assertEquals(listOf("relays", "set porch true", "set gate true"), hubs.calls)
+        }
+
+    @Test
+    fun `all lights switches only the relays chosen on this hub, and decides by those alone`() =
+        runTest {
+            lights.choose(LightsChoice(HOME.address.origin, setOf("porch")))
+            val model = model()
+
+            // The gate is on, but it is not one of the lights: the porch is off, so on it goes.
+            assertEquals(ShortcutResult.Lights(on = true), model.run(ShortcutRequest.Lights))
+            assertEquals(listOf("relays", "set porch true"), hubs.calls)
+        }
+
+    @Test
+    fun `a choice made on another hub does not apply here`() =
+        runTest {
+            lights.choose(LightsChoice("http://192.168.1.50:5002", setOf("porch")))
+            val model = model()
+
+            assertEquals(ShortcutResult.Lights(on = false), model.run(ShortcutRequest.Lights))
+            assertEquals(listOf("relays", "set gate false"), hubs.calls)
+        }
+
+    @Test
+    fun `chosen relays that are all gone from the hub switch nothing, and say so`() =
+        runTest {
+            lights.choose(LightsChoice(HOME.address.origin, setOf("pump")))
+            val model = model()
+
+            assertEquals(ShortcutResult.NoLights, model.run(ShortcutRequest.Lights))
+            assertEquals(listOf("relays"), hubs.calls)
+        }
+
+    @Test
+    fun `a write refused after another went through leaves the lights unsure`() =
+        runTest {
+            onHub = listOf(porch, gateLight.copy(on = false))
+            hubs.setRelay = { id, on ->
+                if (id == "gate") throw failure(HubErrorKind.SERVER)
+                onHub = onHub.map { if (it.id == id) it.copy(on = on) else it }
+                onHub.first { it.id == id }
+            }
+            val model = model()
+
+            assertEquals(ShortcutResult.Unsure(null), model.run(ShortcutRequest.Lights))
+        }
+
+    @Test
+    fun `a first write refused is a failure, and nothing else is written`() =
+        runTest {
+            onHub = listOf(porch, gateLight.copy(on = false))
+            hubs.setRelay = { _, _ -> throw failure(HubErrorKind.SERVER) }
+            val model = model()
+
+            assertEquals(ShortcutResult.Failed(HubErrorKind.SERVER), model.run(ShortcutRequest.Lights))
+            assertEquals(listOf("relays", "set porch true"), hubs.calls)
+        }
+
+    @Test
+    fun `all lights tells the rest of the app what it read and what it switched`() =
+        runTest {
+            model()
+            val news = HeardNews()
+            val model = ShortcutModel(QuickActions(gate, network, hubs), news, lights)
+
+            model.run(ShortcutRequest.Lights)
+
+            assertEquals(listOf("all porch=false gate=true", "one gate=false"), news.heard)
         }
 }

@@ -260,6 +260,13 @@
     <string name="tile_added">Плитку додано у швидкі налаштування.</string>
     <string name="tile_already_added">Плитка вже є у швидких налаштуваннях.</string>
     <string name="tile_add_failed">Android не додав плитку. Додайте її, редагуючи швидкі налаштування.</string>
+    <!-- Choosing the All lights shortcut's relays -->
+    <string name="lights_title">Ярлик «Усе світло»</string>
+    <string name="lights_body">Якщо затиснути іконку застосунку, у меню буде «Усе світло». Якщо хоч одне з його реле увімкнене, ярлик вимикає їх; якщо всі вимкнені, вмикає.</string>
+    <string name="lights_viewer">Ваш акаунт може переглядати будинок, але не змінювати його, тож ярлик лише відкриватиме застосунок. Адміністратор може зробити вас оператором.</string>
+    <string name="lights_relays">Його реле</string>
+    <string name="lights_every_relay">Усі реле, зокрема ті, що з\'являться на хабі пізніше.</string>
+    <string name="lights_some_relays">Лише позначені тут реле.</string>
     <!-- Launcher shortcuts, behind a long press on the app's icon -->
     <string name="shortcut_all_off_long">Вимкнути всі реле</string>
     <!-- %1$s is the relay's name -->
@@ -273,6 +280,12 @@
     <string name="shortcut_gone">«%1$s» більше немає на хабі. Ярлик можна прибрати з головного екрана.</string>
     <string name="shortcut_close">Закрити</string>
     <string name="shortcut_open_app">Відкрити застосунок</string>
+    <string name="shortcut_lights">Усе світло</string>
+    <string name="shortcut_lights_long">Увімкнути чи вимкнути світло</string>
+    <string name="shortcut_lights_on">Світло увімкнено.</string>
+    <string name="shortcut_lights_off">Світло вимкнено.</string>
+    <string name="shortcut_lights_unsure">Зрозумілої відповіді не прийшло, тож світло, можливо, вже перемкнено. Відкрийте застосунок, щоб перевірити.</string>
+    <string name="shortcut_no_lights">Жодного реле цього ярлика немає на хабі. Виберіть їх знову в застосунку.</string>
 
     <!-- The home-screen widget -->
     <string name="widget_description">Ваші реле з перемикачами й останні покази датчиків.</string>

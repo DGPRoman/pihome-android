@@ -23,15 +23,15 @@ and a weakness in the hub belongs there.
   A token that no longer decrypts reads as signed out; the person signs in again.
 - **The hub's address and who the session belongs to**, as they are: neither is a secret, and
   the app shows both.
-- **The relay chosen for the tile**, and **what the widget last showed**: relay names and
-  states, sensor readings, and when they were read.
+- **The relay chosen for the tile**, **the relays chosen for All lights**, and **what the widget
+  last showed**: relay names and states, sensor readings, and when they were read.
 - **The relays' names, in the launcher's shortcuts**, which the launcher keeps.
 
 It never keeps a password, which the app sends once to log in and the phone's own password
 manager may remember, or an invitation, which lives only on the screen that shows it. Nothing
 it keeps goes into a cloud backup or a transfer to a new phone. Signing out, or the hub ending
-the session, removes the token, the shortcuts and what the widget showed; the tile keeps its
-choice, which applies only on the hub it was made on.
+the session, removes the token, the shortcuts and what the widget showed; the tile and All
+lights keep their choices, which apply only on the hub they were made on.
 
 ## Releases
 
