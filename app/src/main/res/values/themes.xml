@@ -2,4 +2,13 @@
 <resources>
     <!-- Only the window behind Compose: everything drawn is themed in Kotlin. -->
     <style name="Theme.Pihome" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- A launcher shortcut's window: nothing but the dialog Compose draws, over
+         whatever was on the screen. Inherits the light or dark window above. -->
+    <style name="Theme.Pihome.Shortcut">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 </resources>

@@ -187,6 +187,10 @@ private fun SignedIn(
                         onRefused = { graph.gate.refused(saved.token) },
                         // The role may have changed since this phone last asked.
                         onForbidden = { graph.gate.check() },
+                        // As the gate has it now, not as it was when the screen opened: the role may have changed.
+                        onRelays = { relays ->
+                            (graph.gate.state.value as? Gate.SignedIn)?.let { graph.shortcuts.follow(it.saved, relays) }
+                        },
                     )
                 }
             HouseScreen(

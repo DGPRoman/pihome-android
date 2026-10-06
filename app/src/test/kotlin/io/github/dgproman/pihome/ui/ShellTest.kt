@@ -14,8 +14,10 @@ import androidx.compose.ui.test.performScrollTo
 import io.github.dgproman.pihome.AppGraph
 import io.github.dgproman.pihome.FakeHubs
 import io.github.dgproman.pihome.FakeLocalNetwork
+import io.github.dgproman.pihome.FakeShortcutShelf
 import io.github.dgproman.pihome.FakeTileChoices
 import io.github.dgproman.pihome.TestClock
+import io.github.dgproman.pihome.hub.Relay
 import io.github.dgproman.pihome.session.FakeCipher
 import io.github.dgproman.pihome.session.HOME
 import io.github.dgproman.pihome.session.SessionStore
@@ -117,6 +119,7 @@ class ShellTest(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val store by lazy { SessionStore(folder.sessionData(), FakeCipher()) }
     private val hubs = FakeHubs()
+    private val shelf = FakeShortcutShelf()
     private val night get() = "night" in qualifiers
 
     @After
@@ -125,7 +128,7 @@ class ShellTest(
     }
 
     private fun show() {
-        val graph = AppGraph(store, scope, hubs, FakeLocalNetwork(), TestClock(), FakeTileChoices())
+        val graph = AppGraph(store, scope, hubs, FakeLocalNetwork(), TestClock(), FakeTileChoices(), shortcutShelf = shelf)
         var surface = Color.Unspecified
         compose.setContent {
             PihomeTheme {
@@ -150,6 +153,21 @@ class ShellTest(
 
         waitFor(words.notConnected)
         compose.onNodeWithText(words.notConnected).assertIsDisplayed()
+    }
+
+    @Test
+    fun `the launcher offers the relays the house shows, until the phone signs out`() {
+        hubs.relays = { listOf(Relay("porch", "Porch light", on = false)) }
+        runBlocking { store.save(HOME) }
+        show()
+
+        waitFor("Porch light")
+        assertEquals(listOf("porch"), shelf.shown.map { it.relayId })
+
+        compose.onNodeWithContentDescription(words.account).performClick()
+        compose.onNodeWithText(words.signOut).performScrollTo().performClick()
+        waitFor(words.notConnected)
+        compose.waitUntil(timeoutMillis = 5_000) { shelf.shown.isEmpty() }
     }
 
     @Test

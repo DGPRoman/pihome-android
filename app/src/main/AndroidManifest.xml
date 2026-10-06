@@ -40,7 +40,21 @@
                     android:host="join"
                     android:scheme="pihome" />
             </intent-filter>
+            <!-- All off, behind a long press on the icon. The relays' own are added at run time. -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
+
+        <!-- What a launcher shortcut opens. Not exported: the launcher starts it on
+             this app's behalf. In a task of its own and out of Recents, since the
+             launcher clears the task a shortcut opens into. -->
+        <activity
+            android:name=".quick.ShortcutActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Pihome.Shortcut" />
 
         <!-- The Quick Settings tile. Only the system may bind to it. -->
         <service
