@@ -16,9 +16,22 @@ This repository is the Android client. The hub has its own threat model and depl
 advice in [pihome-hub's SECURITY.md](https://github.com/DGPRoman/pihome-hub/blob/main/SECURITY.md),
 and a weakness in the hub belongs there.
 
-What the app keeps, and how, is described here as each part lands. So far it keeps
-nothing — it does not talk to a hub yet — and it is built to keep whatever it later
-stores out of cloud backups and device-to-device transfers.
+## What the app keeps
+
+- **The session token**, encrypted with a key in the Android Keystore that never leaves it,
+  with the hub's address bound in so a token copied next to another address does not decrypt.
+  A token that no longer decrypts reads as signed out; the person signs in again.
+- **The hub's address and who the session belongs to**, as they are: neither is a secret, and
+  the app shows both.
+- **The relay chosen for the tile**, and **what the widget last showed**: relay names and
+  states, sensor readings, and when they were read.
+- **The relays' names, in the launcher's shortcuts**, which the launcher keeps.
+
+It never keeps a password, which the app sends once to log in and the phone's own password
+manager may remember, or an invitation, which lives only on the screen that shows it. Nothing
+it keeps goes into a cloud backup or a transfer to a new phone. Signing out, or the hub ending
+the session, removes the token, the shortcuts and what the widget showed; the tile keeps its
+choice, which applies only on the hub it was made on.
 
 ## Releases
 
