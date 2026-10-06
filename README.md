@@ -13,8 +13,10 @@ home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 > relays as switches, what each sensor last reported and how long ago, whether the hub can
 > reach its devices, and the automation rules, read every ten seconds while the screen is
 > open. An admin adds people and hands them an invitation as a QR code or a link. A Quick
-> Settings tile switches one relay without opening the app, and a long press on the app's icon
-> offers All off and one shortcut per relay. The widget is next; see [Roadmap](#roadmap).
+> Settings tile switches one relay without opening the app, a long press on the app's icon
+> offers All off and one shortcut per relay, and a home-screen widget shows the relays with
+> their switches and what the sensors last reported. Signed releases are next; see
+> [Roadmap](#roadmap).
 
 ## Design notes
 
@@ -132,6 +134,15 @@ The rules are the tile's: with no session, a viewer's account or no leave to rea
 it opens the app instead. The window is not exported, so nothing but this app and the launcher
 on its behalf can start it.
 
+**A widget gives times, not ages.** The home-screen widget shows each relay as a switch with
+its state in words, and a line for each sensor. It reads the hub when it is placed, when its
+refresh is tapped, and every fifteen minutes once there is a network; nothing in the background
+asks more often, because the battery would pay for it. In between it takes in what the rest of
+the app hears: the house screen's reads, and the switches made from the tile and the shortcuts.
+Nothing redraws it as the minutes pass, so "2 minutes ago" would still be on the screen an hour
+later; it says "at 14:05" instead, which stays true. The rules are the tile's, and signing out
+takes the house off it.
+
 **One product with the web client.** Colours come from the web client's design tokens, light
 or dark as the system is set, and not from the wallpaper. The strings are in English and
 Ukrainian, and Android lets the language be chosen for this app alone.
@@ -174,8 +185,9 @@ app/                           the Android application
     │   │   ├── connect/           joining, logging in, invitations arriving, the local network
     │   │   ├── house/             the house as the hub reports it: polling, presses, ages
     │   │   ├── people/            accounts and invitations, for an admin, and the QR code
-    │   │   ├── quick/             the tile and the launcher shortcuts, and what the widget will share
+    │   │   ├── quick/             the tile and the launcher shortcuts, and what they share with the widget
     │   │   ├── session/           the encrypted session, and the gate above the screens
+    │   │   ├── widget/            the home-screen widget: what it keeps, says and draws, and its refresh
     │   │   └── ui/
     │   │       ├── PihomeApp.kt   signed out or in, each with its own back stack
     │   │       ├── connect/       what the connecting screens share
@@ -204,16 +216,16 @@ gradle/libs.versions.toml      every dependency version, exact
 
 ## Roadmap
 
-| Phase | Scope                                                       | Issue       | Status                  |
-| ----- | ----------------------------------------------------------- | ----------- | ----------------------- |
-| 1     | Build, checks and CI                                        | #1          | ✅ done                  |
-| 2     | Hub client, tested against recorded replies and a real hub  | #2, #3      | ✅ done                  |
-| 3     | App shell: theme, navigation, session storage               | #4          | ✅ done                  |
-| 4     | Connecting: invitation, password, local-network permission  | #5          | ✅ done                  |
-| 5     | The house: relays, sensors, devices, rules                  | #6          | ✅ done                  |
-| 6     | People and invitations, for an admin                        | #7          | ✅ done                  |
-| 7     | Quick Settings tile, home-screen widget, launcher shortcuts | #8, #9, #10 | tile and shortcuts done |
-| 8     | Signed releases                                             | #11         | planned                 |
+| Phase | Scope                                                       | Issue       | Status  |
+| ----- | ----------------------------------------------------------- | ----------- | ------- |
+| 1     | Build, checks and CI                                        | #1          | ✅ done  |
+| 2     | Hub client, tested against recorded replies and a real hub  | #2, #3      | ✅ done  |
+| 3     | App shell: theme, navigation, session storage               | #4          | ✅ done  |
+| 4     | Connecting: invitation, password, local-network permission  | #5          | ✅ done  |
+| 5     | The house: relays, sensors, devices, rules                  | #6          | ✅ done  |
+| 6     | People and invitations, for an admin                        | #7          | ✅ done  |
+| 7     | Quick Settings tile, home-screen widget, launcher shortcuts | #8, #9, #10 | ✅ done  |
+| 8     | Signed releases                                             | #11         | planned |
 
 ## License
 
