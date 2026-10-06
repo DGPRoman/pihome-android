@@ -238,6 +238,29 @@
     <string name="withdrawing">Відкликаю…</string>
     <string name="done">Готово</string>
 
+    <!-- Плитка у швидких налаштуваннях -->
+    <string name="tile_label">Реле</string>
+    <string name="tile_label_with_state">%1$s: %2$s</string>
+    <string name="tile_reading">Перевіряю…</string>
+    <string name="tile_switching_on">Вмикаю…</string>
+    <string name="tile_switching_off">Вимикаю…</string>
+    <string name="tile_unreachable">Хаб не відповідає</string>
+    <string name="tile_refused">Не перемкнуто</string>
+    <string name="tile_not_connected">Відкрийте застосунок, щоб підключитися</string>
+    <string name="tile_read_only">Ваш акаунт не може його перемикати</string>
+    <string name="tile_needs_permission">Відкрийте застосунок, щоб дозволити доступ до мережі</string>
+    <string name="tile_not_chosen">Виберіть реле в застосунку</string>
+    <string name="tile_not_found">Цього реле більше немає на хабі</string>
+    <string name="tile_title">Плитка у швидких налаштуваннях</string>
+    <string name="tile_body">Плитка у швидких налаштуваннях перемикає одне реле, не відкриваючи застосунок. На заблокованому телефоні вона спершу просить його розблокувати.</string>
+    <string name="tile_viewer">Ваш акаунт може переглядати будинок, але не змінювати його, тож плитка лише відкриватиме застосунок. Адміністратор може зробити вас оператором.</string>
+    <string name="tile_relay">Реле для плитки</string>
+    <string name="tile_add">Додати плитку</string>
+    <string name="tile_add_by_hand">Щоб додати плитку, відкрийте швидкі налаштування, торкніться олівця й перетягніть плитку «Реле».</string>
+    <string name="tile_added">Плитку додано у швидкі налаштування.</string>
+    <string name="tile_already_added">Плитка вже є у швидких налаштуваннях.</string>
+    <string name="tile_add_failed">Android не додав плитку. Додайте її, редагуючи швидкі налаштування.</string>
+
     <!-- Account -->
     <string name="account_title">Акаунт</string>
     <string name="account_hub">Хаб</string>

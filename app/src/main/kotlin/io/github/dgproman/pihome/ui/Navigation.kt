@@ -50,3 +50,7 @@ data object Account : NavKey
  */
 @Serializable
 data object People : NavKey
+
+/** Signed in: which relay the Quick Settings tile switches. */
+@Serializable
+data object TileSettings : NavKey

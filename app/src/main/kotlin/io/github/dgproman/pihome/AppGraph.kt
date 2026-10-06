@@ -4,6 +4,12 @@ import android.content.Context
 import io.github.dgproman.pihome.connect.AndroidLocalNetwork
 import io.github.dgproman.pihome.connect.IncomingInvitations
 import io.github.dgproman.pihome.connect.LocalNetwork
+import io.github.dgproman.pihome.quick.QuickActions
+import io.github.dgproman.pihome.quick.RelayTileService
+import io.github.dgproman.pihome.quick.StoredTileChoices
+import io.github.dgproman.pihome.quick.TileChoices
+import io.github.dgproman.pihome.quick.TileModel
+import io.github.dgproman.pihome.quick.tileData
 import io.github.dgproman.pihome.session.KeystoreTokenCipher
 import io.github.dgproman.pihome.session.SessionGate
 import io.github.dgproman.pihome.session.SessionStore
@@ -26,8 +32,17 @@ class AppGraph(
     val hubs: Hubs,
     val localNetwork: LocalNetwork,
     val clock: Clock,
+    /** The relay the Quick Settings tile switches. */
+    val tileChoices: TileChoices,
+    /** Ask Android to show the tile again. Nothing, in tests. */
+    val redrawTile: () -> Unit = {},
 ) {
     val gate = SessionGate(sessions, scope, hubs)
+
+    /** What the tile, the widget and the shortcuts share. */
+    val quick = QuickActions(gate, localNetwork, hubs)
+
+    val tile = TileModel(quick, tileChoices, scope, redrawTile)
 
     /** Invitations handed to the app from outside, waiting for the screens to take them. */
     val incoming = IncomingInvitations()
@@ -42,6 +57,8 @@ class AppGraph(
                 hubs = HttpHubs(),
                 localNetwork = AndroidLocalNetwork(context.applicationContext),
                 clock = Clock.systemDefaultZone(),
+                tileChoices = StoredTileChoices(context.tileData),
+                redrawTile = { RelayTileService.redraw(context.applicationContext) },
             )
     }
 }
