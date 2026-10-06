@@ -19,3 +19,12 @@ and a weakness in the hub belongs there.
 What the app keeps, and how, is described here as each part lands. So far it keeps
 nothing — it does not talk to a hub yet — and it is built to keep whatever it later
 stores out of cloud backups and device-to-device transfers.
+
+## Releases
+
+Releases are built by GitHub Actions from a `v*` tag on `main`, from the tagged source alone
+with no build cache, after the same checks as every pull request. Each is signed with one key,
+held in the secrets of an environment only those tags can use and in an offline backup, and
+never in this repository; CI fails if a keystore is ever tracked. Each release states the
+SHA-256 of its APK and of the signing certificate, which is the same for every release:
+[Installing](README.md#installing) shows how to check both.
