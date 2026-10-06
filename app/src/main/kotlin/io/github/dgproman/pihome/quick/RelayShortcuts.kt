@@ -40,12 +40,12 @@ fun interface ShortcutShelf {
  */
 class RelayShortcuts(
     private val shelf: ShortcutShelf,
-) {
+) : RelayNews {
     /** What was put last, or null when that is not known: at start, and after Android refused. */
     private var shown: List<RelayShortcut>? = null
 
     /** The relays as [saved]'s hub has just reported them. */
-    fun follow(
+    override fun all(
         saved: SavedSession,
         relays: List<Relay>,
     ) {

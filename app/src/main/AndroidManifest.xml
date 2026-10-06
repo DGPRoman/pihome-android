@@ -71,6 +71,21 @@
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
         </service>
+
+        <!-- The home-screen widget. Exported, as every widget's is: the launcher
+             asks it to draw. What it switches, it switches through WidgetModel,
+             with the same checks as the tile. -->
+        <receiver
+            android:name=".widget.HouseWidgetReceiver"
+            android:exported="true"
+            android:label="@string/house_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/house_widget" />
+        </receiver>
     </application>
 
 </manifest>

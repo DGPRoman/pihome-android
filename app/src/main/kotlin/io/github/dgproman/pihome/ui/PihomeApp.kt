@@ -189,7 +189,7 @@ private fun SignedIn(
                         onForbidden = { graph.gate.check() },
                         // As the gate has it now, not as it was when the screen opened: the role may have changed.
                         onRelays = { relays ->
-                            (graph.gate.state.value as? Gate.SignedIn)?.let { graph.shortcuts.follow(it.saved, relays) }
+                            (graph.gate.state.value as? Gate.SignedIn)?.let { graph.news.all(it.saved, relays) }
                         },
                     )
                 }

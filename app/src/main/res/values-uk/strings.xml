@@ -274,6 +274,21 @@
     <string name="shortcut_close">Закрити</string>
     <string name="shortcut_open_app">Відкрити застосунок</string>
 
+    <!-- The home-screen widget -->
+    <string name="widget_description">Ваші реле з перемикачами й останні покази датчиків.</string>
+    <string name="widget_refresh">Оновити</string>
+    <string name="widget_reading">Питаю хаб…</string>
+    <string name="widget_updated">Оновлено %1$s</string>
+    <string name="widget_failed_since">Хаб не відповів. Станом на %1$s</string>
+    <string name="widget_not_read">Ще не прочитано. Торкніться «Оновити».</string>
+    <string name="widget_read_only">Ваш акаунт не може перемикати реле</string>
+    <string name="widget_not_switched_on">Увімк., не перемкнуто</string>
+    <string name="widget_not_switched_off">Вимк., не перемкнуто</string>
+    <string name="widget_motion">рух</string>
+    <string name="widget_no_motion">руху немає</string>
+    <string name="widget_stale_value">%1$s (застаріло)</string>
+    <string name="widget_sensor_line">%1$s · %2$s</string>
+
     <!-- Account -->
     <string name="account_title">Акаунт</string>
     <string name="account_hub">Хаб</string>

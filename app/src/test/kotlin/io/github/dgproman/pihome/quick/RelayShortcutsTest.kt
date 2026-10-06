@@ -16,7 +16,7 @@ class RelayShortcutsTest {
 
     @Test
     fun `there is one shortcut per relay, in the hub's order`() {
-        shortcuts.follow(HOME, listOf(porch, gate))
+        shortcuts.all(HOME, listOf(porch, gate))
 
         assertEquals(listOf(RelayShortcut(hub, "porch", "Porch light"), RelayShortcut(hub, "gate", "Gate")), shelf.shown)
         assertEquals(listOf("relay:porch", "relay:gate"), shelf.shown.map { it.id })
@@ -24,23 +24,23 @@ class RelayShortcutsTest {
 
     @Test
     fun `they follow relays being added, renamed and removed`() {
-        shortcuts.follow(HOME, listOf(porch))
-        shortcuts.follow(HOME, listOf(porch, gate))
+        shortcuts.all(HOME, listOf(porch))
+        shortcuts.all(HOME, listOf(porch, gate))
         assertEquals(listOf("porch", "gate"), shelf.shown.map { it.relayId })
 
-        shortcuts.follow(HOME, listOf(porch.copy(label = "Porch"), gate))
+        shortcuts.all(HOME, listOf(porch.copy(label = "Porch"), gate))
         assertEquals("Porch", shelf.shown.first().name)
 
-        shortcuts.follow(HOME, listOf(gate))
+        shortcuts.all(HOME, listOf(gate))
         assertEquals(listOf("gate"), shelf.shown.map { it.relayId })
     }
 
     @Test
     fun `Android is asked only when something changed, since it limits how often`() {
-        shortcuts.follow(HOME, listOf(porch, gate))
+        shortcuts.all(HOME, listOf(porch, gate))
         // A relay switched: its shortcut is the same.
-        shortcuts.follow(HOME, listOf(porch.copy(on = true), gate))
-        shortcuts.follow(HOME, listOf(porch, gate))
+        shortcuts.all(HOME, listOf(porch.copy(on = true), gate))
+        shortcuts.all(HOME, listOf(porch, gate))
 
         assertEquals(1, shelf.puts)
     }
@@ -48,9 +48,9 @@ class RelayShortcutsTest {
     @Test
     fun `when Android would not change them, the next list is put again`() {
         shelf.refuse = true
-        shortcuts.follow(HOME, listOf(porch))
+        shortcuts.all(HOME, listOf(porch))
         shelf.refuse = false
-        shortcuts.follow(HOME, listOf(porch))
+        shortcuts.all(HOME, listOf(porch))
 
         assertEquals(2, shelf.puts)
         assertEquals(listOf("porch"), shelf.shown.map { it.relayId })
@@ -58,16 +58,16 @@ class RelayShortcutsTest {
 
     @Test
     fun `a viewer, who may switch nothing, is offered no relay`() {
-        shortcuts.follow(HOME, listOf(porch))
+        shortcuts.all(HOME, listOf(porch))
 
-        shortcuts.follow(HOME.copy(session = HOME.session.copy(role = Role.VIEWER)), listOf(porch))
+        shortcuts.all(HOME.copy(session = HOME.session.copy(role = Role.VIEWER)), listOf(porch))
 
         assertEquals(emptyList<RelayShortcut>(), shelf.shown)
     }
 
     @Test
     fun `signing out takes them all away`() {
-        shortcuts.follow(HOME, listOf(porch, gate))
+        shortcuts.all(HOME, listOf(porch, gate))
 
         shortcuts.clear()
 

@@ -17,10 +17,13 @@ import io.github.dgproman.pihome.hub.Sensor
 import io.github.dgproman.pihome.hub.Session
 import io.github.dgproman.pihome.hub.SessionToken
 import io.github.dgproman.pihome.hub.SignedIn
+import io.github.dgproman.pihome.quick.RelayNews
 import io.github.dgproman.pihome.quick.RelayShortcut
 import io.github.dgproman.pihome.quick.ShortcutShelf
 import io.github.dgproman.pihome.quick.TileChoice
 import io.github.dgproman.pihome.quick.TileChoices
+import io.github.dgproman.pihome.session.SavedSession
+import io.github.dgproman.pihome.widget.WidgetHost
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Clock
@@ -204,6 +207,39 @@ class FakeShortcutShelf : ShortcutShelf {
         if (refuse) return false
         shown = shortcuts
         return true
+    }
+}
+
+/** The home-screen widgets, with the answers a test sets. */
+class FakeWidgetHost(
+    /** Whether a widget is on the home screen. */
+    var placed: Boolean = true,
+) : WidgetHost {
+    var redraws = 0
+
+    override suspend fun placed(): Boolean = placed
+
+    override suspend fun redraw() {
+        redraws++
+    }
+}
+
+/** Everything the hub was heard to say of its relays, in order. */
+class HeardNews : RelayNews {
+    val heard = mutableListOf<String>()
+
+    override fun all(
+        saved: SavedSession,
+        relays: List<Relay>,
+    ) {
+        heard += "all " + relays.joinToString(" ") { "${it.id}=${it.on}" }
+    }
+
+    override fun one(
+        saved: SavedSession,
+        relay: Relay,
+    ) {
+        heard += "one ${relay.id}=${relay.on}"
     }
 }
 

@@ -66,7 +66,8 @@ enum class Tap {
  * Lives as long as the process, not as long as the service. Android lets go of
  * the service when the shade closes, and a switch already sent should still
  * finish and be shown, so its work runs in [scope], and [onChange] asks
- * Android, once the switch is over, to show the tile again.
+ * Android, once the switch is over, to show the tile again. What the hub
+ * answers goes to [news], so the widget shows a switch made here.
  *
  * One thing at a time: a tap while the tile is reading or switching is
  * ignored, rather than queued up for a hub that is already slow to answer.
@@ -75,6 +76,7 @@ class TileModel(
     private val quick: QuickActions,
     private val choices: TileChoices,
     private val scope: CoroutineScope,
+    private val news: RelayNews = RelayNews.of(),
     private val onChange: () -> Unit = {},
 ) {
     private val look = MutableStateFlow<TileLook>(TileLook.Reading(null))
@@ -127,6 +129,7 @@ class TileModel(
         show(
             when (val outcome = quick.ask(ready) { relays() }) {
                 is Outcome.Done -> {
+                    news.all(ready.saved, outcome.value)
                     val relay = outcome.value.find { it.id == choice.relayId }
                     if (relay == null) {
                         TileLook.CannotAct(choice.relayName, TileLook.Reason.NOT_FOUND)
@@ -149,8 +152,14 @@ class TileModel(
         show(TileLook.Switching(choice.relayName, to))
         show(
             when (val outcome = quick.ask(ready) { setRelay(choice.relayId, to) }) {
-                is Outcome.Done -> TileLook.Showing(outcome.value.label, outcome.value.on)
-                is Outcome.Failed -> failed(choice.relayName, on = !to, kind = outcome.kind, to = to)
+                is Outcome.Done -> {
+                    news.one(ready.saved, outcome.value)
+                    TileLook.Showing(outcome.value.label, outcome.value.on)
+                }
+
+                is Outcome.Failed -> {
+                    failed(choice.relayName, on = !to, kind = outcome.kind, to = to)
+                }
             },
         )
         // The shade may have closed while the hub answered. Only here, and not after a

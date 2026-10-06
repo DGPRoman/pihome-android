@@ -280,6 +280,23 @@
     <string name="shortcut_close">Close</string>
     <string name="shortcut_open_app">Open the app</string>
 
+    <!-- The home-screen widget -->
+    <string name="widget_description">Your relays, with switches, and what your sensors last reported.</string>
+    <string name="widget_refresh">Refresh</string>
+    <string name="widget_reading">Asking the hub…</string>
+    <string name="widget_updated">Updated %1$s</string>
+    <string name="widget_failed_since">The hub did not answer. As of %1$s</string>
+    <string name="widget_not_read">Not read yet. Tap Refresh.</string>
+    <string name="widget_read_only">Your account cannot switch the relays</string>
+    <string name="widget_not_switched_on">On, not switched</string>
+    <string name="widget_not_switched_off">Off, not switched</string>
+    <string name="widget_motion">motion</string>
+    <string name="widget_no_motion">no motion</string>
+    <!-- A sensor's value older than the sensor's window. -->
+    <string name="widget_stale_value">%1$s (stale)</string>
+    <!-- A sensor's values, then the time of the newest. -->
+    <string name="widget_sensor_line">%1$s · %2$s</string>
+
     <!-- Account -->
     <string name="account_title">Account</string>
     <string name="account_hub">Hub</string>

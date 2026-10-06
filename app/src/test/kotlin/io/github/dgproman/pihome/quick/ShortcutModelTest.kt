@@ -3,6 +3,7 @@ package io.github.dgproman.pihome.quick
 import io.github.dgproman.pihome.FakeHubs
 import io.github.dgproman.pihome.FakeLocalNetwork
 import io.github.dgproman.pihome.FakeShortcutShelf
+import io.github.dgproman.pihome.HeardNews
 import io.github.dgproman.pihome.failure
 import io.github.dgproman.pihome.hub.HubErrorKind
 import io.github.dgproman.pihome.hub.Relay
@@ -184,5 +185,18 @@ class ShortcutModelTest {
             val model = model()
 
             assertEquals(ShortcutResult.OpenApp, model.run(porchShortcut))
+        }
+
+    @Test
+    fun `what the hub says goes to the rest of the app, so the widget shows a switch made here`() =
+        runTest {
+            model()
+            val news = HeardNews()
+            val model = ShortcutModel(QuickActions(gate, network, hubs), news)
+
+            model.run(porchShortcut)
+            model.run(ShortcutRequest.AllOff)
+
+            assertEquals(listOf("all porch=false gate=true", "one porch=true", "all porch=false gate=false"), news.heard)
         }
 }

@@ -46,13 +46,14 @@ sealed interface ShortcutResult {
  *
  * A relay's shortcut switches it to the state it is not in, so it reads the
  * relays first: the one place outside the app that asks the hub twice for one
- * tap, and the one that knows least about what it last showed. The list it
- * reads is handed to [shortcuts] on the way, which is how a shortcut to a
- * relay that has gone stops being offered.
+ * tap, and the one that knows least about what it last showed. What it
+ * reads and what the hub answers go to [news] on the way, which is how a
+ * shortcut to a relay that has gone stops being offered, and how the widget
+ * learns of the switch.
  */
 class ShortcutModel(
     private val quick: QuickActions,
-    private val shortcuts: RelayShortcuts,
+    private val news: RelayNews,
 ) {
     suspend fun run(request: ShortcutRequest): ShortcutResult {
         val ready = quick.readiness() as? Readiness.Ready ?: return ShortcutResult.OpenApp
@@ -65,7 +66,7 @@ class ShortcutModel(
     private suspend fun allOff(ready: Readiness.Ready): ShortcutResult =
         when (val outcome = quick.ask(ready) { setAllRelays(on = false) }) {
             is Outcome.Done -> {
-                shortcuts.follow(ready.saved, outcome.value)
+                news.all(ready.saved, outcome.value)
                 ShortcutResult.AllOff
             }
 
@@ -84,11 +85,17 @@ class ShortcutModel(
                 is Outcome.Done -> outcome.value
                 is Outcome.Failed -> return failed(outcome.kind, shortcut.name, write = false)
             }
-        shortcuts.follow(ready.saved, relays)
+        news.all(ready.saved, relays)
         val relay = relays.find { it.id == shortcut.relayId } ?: return ShortcutResult.Gone(shortcut.name)
         return when (val outcome = quick.ask(ready) { setRelay(relay.id, !relay.on) }) {
-            is Outcome.Done -> ShortcutResult.Switched(outcome.value.label, outcome.value.on)
-            is Outcome.Failed -> failed(outcome.kind, relay.label, write = true)
+            is Outcome.Done -> {
+                news.one(ready.saved, outcome.value)
+                ShortcutResult.Switched(outcome.value.label, outcome.value.on)
+            }
+
+            is Outcome.Failed -> {
+                failed(outcome.kind, relay.label, write = true)
+            }
         }
     }
 
