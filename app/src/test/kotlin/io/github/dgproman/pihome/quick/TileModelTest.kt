@@ -3,6 +3,7 @@ package io.github.dgproman.pihome.quick
 import io.github.dgproman.pihome.FakeHubs
 import io.github.dgproman.pihome.FakeLocalNetwork
 import io.github.dgproman.pihome.FakeTileChoices
+import io.github.dgproman.pihome.HeardNews
 import io.github.dgproman.pihome.failure
 import io.github.dgproman.pihome.hub.HubErrorKind
 import io.github.dgproman.pihome.hub.Relay
@@ -38,6 +39,7 @@ class TileModelTest {
     private val porch = Relay("porch", "Porch light", on = false)
     private val choices = FakeTileChoices(TileChoice(HOME.address.origin, "porch", "Porch light"))
     private var redrawn = 0
+    private val news = HeardNews()
 
     /** What the hub holds: each write changes it, each read reports it. */
     private var onHub = listOf(porch)
@@ -56,7 +58,7 @@ class TileModelTest {
         if (saved != null) store.save(saved)
         gate = SessionGate(store, backgroundScope, hubs)
         gate.state.first { it != Gate.Loading }
-        return TileModel(QuickActions(gate, network, hubs), choices, backgroundScope) { redrawn++ }
+        return TileModel(QuickActions(gate, network, hubs), choices, backgroundScope, news) { redrawn++ }
     }
 
     @Test
@@ -233,5 +235,18 @@ class TileModelTest {
             assertEquals(Gate.Ended, gate.state.value)
             assertEquals(TileLook.CannotAct("Porch light", TileLook.Reason.NOT_SIGNED_IN), model.state.value)
             assertEquals(Tap.OPEN_APP, model.tap())
+        }
+
+    @Test
+    fun `what the hub says goes to the rest of the app, so the widget shows a switch made here`() =
+        runTest {
+            val model = model()
+            model.refresh()
+            runCurrent()
+
+            model.tap()
+            runCurrent()
+
+            assertEquals(listOf("all porch=false", "one porch=true"), news.heard)
         }
 }

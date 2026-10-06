@@ -65,6 +65,10 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.datastore.preferences)
+    // The home-screen widget, and the refresh that keeps it current while the app is closed.
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+    implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
@@ -77,6 +81,8 @@ dependencies {
 
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.androidx.glance.appwidget.testing)
+    testImplementation(libs.androidx.work.testing)
     // Newer than the ones Compose's test library asks for: the older Espresso
     // injects input through a method Android 17 no longer has.
     testImplementation(libs.androidx.test.core)

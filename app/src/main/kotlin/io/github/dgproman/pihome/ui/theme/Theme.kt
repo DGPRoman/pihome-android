@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 // outline proper marks the edges of controls and needs more contrast than a hairline
 // between cards, so it takes the muted text colour.
 
-private val Light =
+internal val Light =
     lightColorScheme(
         primary = Color(0xFF1B6EF3),
         onPrimary = Color(0xFFFFFFFF),
@@ -33,7 +33,7 @@ private val Light =
 
 // Dark text on the dark theme's accent and danger colours: white on either would
 // fall short of 4.5:1, and the dark page text clears it comfortably.
-private val Dark =
+internal val Dark =
     darkColorScheme(
         primary = Color(0xFF4C8DFF),
         onPrimary = Color(0xFF16181D),
