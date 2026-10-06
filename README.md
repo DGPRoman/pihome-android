@@ -15,8 +15,29 @@ home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 > open. An admin adds people and hands them an invitation as a QR code or a link. A Quick
 > Settings tile switches one relay without opening the app, a long press on the app's icon
 > offers All off and one shortcut per relay, and a home-screen widget shows the relays with
-> their switches and what the sensors last reported. Signed releases are next; see
-> [Roadmap](#roadmap).
+> their switches and what the sensors last reported. Releases are signed APKs; see
+> [Installing](#installing).
+
+## Installing
+
+Each [release](https://github.com/DGPRoman/pihome-android/releases) has the app as
+`pihome-<version>.apk`, and its SHA-256 beside it in `pihome-<version>.apk.sha256` and in the
+release notes.
+
+1. On the phone, open the latest release and download the APK. Android asks, once, to allow
+   the browser to install apps.
+2. To check the download first, compare its SHA-256 with the release's: on a computer, with
+   both files in one folder, `sha256sum -c pihome-<version>.apk.sha256` says `OK`.
+3. Open the APK to install it. A later release installs over an earlier one, and the phone
+   stays connected.
+
+Every release is signed with the same key, and Android installs an update only from the key the
+app was installed with, so an APK from anywhere else cannot replace this one without the app
+being removed first. The certificate's SHA-256 is in each release's notes;
+`apksigner verify --print-certs pihome-<version>.apk` shows the one an APK carries.
+
+A hub can also offer the APK on its join page, to a phone opening an invitation without the app:
+see [The Android app](https://github.com/DGPRoman/pihome-hub#the-android-app) in the hub's README.
 
 ## Design notes
 
@@ -170,11 +191,37 @@ installs the hub into a virtualenv under `build/`, starts a hub of its own on a 
 port, runs `:hub-client:contractTest` and stops it again; nothing is read from the hub
 checkout's `.env` or database.
 
+### Releasing
+
+A tag `vMAJOR.MINOR.PATCH` on `main` runs [release.yml](.github/workflows/release.yml): the
+checks every pull request gets, a release build shrunk by R8 and signed, and a GitHub release
+with the APK and its SHA-256. The version code comes from the tag, 1.2.3 being 1002003, so each
+release installs over the one before it.
+
+```bash
+git tag -a v1.0.0 -m "pihome 1.0.0" && git push origin v1.0.0
+```
+
+The signing key is in two places only: an offline backup, and the secrets of the `release`
+environment, which only `v*` tags can use. It is a PKCS12 keystore holding one key under the
+alias `pihome`, made once:
+
+```bash
+keytool -genkeypair -keystore pihome-release.p12 -storetype PKCS12 -alias pihome \
+    -keyalg RSA -keysize 4096 -validity 10000 -dname "CN=pihome"
+base64 -w 0 pihome-release.p12 | gh secret set RELEASE_KEYSTORE --env release
+gh secret set RELEASE_KEYSTORE_PASSWORD --env release
+```
+
+Without that key no release can update the app already on a phone: it would have to be removed,
+and the phone joined to the hub again.
+
 ## Project layout
 
 ```
 app/                           the Android application
-├── build.gradle.kts           SDK levels, lint policy, dependencies
+├── build.gradle.kts           SDK levels, lint policy, dependencies, signing, the version from a tag
+├── proguard-rules.pro         R8 rules of the app's own; the libraries bring theirs
 └── src/
     ├── main/
     │   ├── AndroidManifest.xml
@@ -225,7 +272,7 @@ gradle/libs.versions.toml      every dependency version, exact
 | 5     | The house: relays, sensors, devices, rules                  | #6          | ✅ done  |
 | 6     | People and invitations, for an admin                        | #7          | ✅ done  |
 | 7     | Quick Settings tile, home-screen widget, launcher shortcuts | #8, #9, #10 | ✅ done  |
-| 8     | Signed releases                                             | #11         | planned |
+| 8     | Signed releases                                             | #11         | ✅ done  |
 
 ## License
 

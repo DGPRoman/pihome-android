@@ -1,0 +1,121 @@
+name: Release
+
+# A tag v1.2.3 on main builds pihome-1.2.3.apk, signs it, and publishes it with
+# its SHA-256 as a GitHub release, which is where phones install it from.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+# One release at a time, and never cancelled halfway through publishing.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Signed release
+    runs-on: ubuntu-latest
+    # The signing secrets live in this environment, which only v* tags may use.
+    environment: release
+    permissions:
+      # To create the release and upload to it.
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # The whole history, to check the tag is on main.
+          fetch-depth: 0
+
+      - name: Read the version from the tag
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! [[ "$TAG" =~ ^v([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$ ]]; then
+            echo "::error::a release tag is vMAJOR.MINOR.PATCH, each part 0 to 999, not $TAG"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$TAG is not on main; only what main has been through is released"
+            exit 1
+          fi
+          echo "name=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      # No cache: a release is built from nothing but the tagged source, so that
+      # nothing a pull request's build left behind can end up in it.
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6
+        with:
+          cache-disabled: true
+
+      # The same checks as every pull request, then the release build itself.
+      - name: Check
+        run: ./gradlew --no-build-cache spotlessCheck lint lintRelease test
+
+      - name: Write the signing key
+        env:
+          KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
+        run: |
+          if [ -z "$KEYSTORE" ]; then
+            echo "::error::the release environment has no RELEASE_KEYSTORE secret"
+            exit 1
+          fi
+          # Outside the checkout, so nothing can pick it up as a source file.
+          printf '%s' "$KEYSTORE" | base64 --decode > "$RUNNER_TEMP/release.p12"
+
+      - name: Build and sign
+        env:
+          PIHOME_KEYSTORE: ${{ runner.temp }}/release.p12
+          PIHOME_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          VERSION: ${{ steps.version.outputs.name }}
+        run: ./gradlew --no-build-cache assembleRelease -Ppihome.version="$VERSION"
+
+      - name: Remove the signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.p12"
+
+      # Fails on an APK that is unsigned, or signed with anything but one key.
+      - name: Verify the signature
+        id: verify
+        env:
+          VERSION: ${{ steps.version.outputs.name }}
+        run: |
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner"
+          mkdir dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/pihome-$VERSION.apk"
+          "$apksigner" verify --print-certs "dist/pihome-$VERSION.apk" | tee certs.txt
+          if [ "$(grep -c 'certificate SHA-256 digest' certs.txt)" -ne 1 ]; then
+            echo "::error::the APK is not signed with exactly one key"
+            exit 1
+          fi
+          digest="$(sed -n 's/.*certificate SHA-256 digest: //p' certs.txt)"
+          echo "certificate=$digest" >> "$GITHUB_OUTPUT"
+          (cd dist && sha256sum "pihome-$VERSION.apk" > "pihome-$VERSION.apk.sha256")
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ steps.version.outputs.name }}
+          CERTIFICATE: ${{ steps.verify.outputs.certificate }}
+        run: |
+          {
+            echo "Install \`pihome-$VERSION.apk\` on the phone; it updates an earlier release in place."
+            echo
+            echo "SHA-256 of the APK:"
+            echo
+            echo "    $(cut -d ' ' -f 1 "dist/pihome-$VERSION.apk.sha256")"
+            echo
+            echo "SHA-256 of the certificate it is signed with, the same for every release:"
+            echo
+            echo "    $CERTIFICATE"
+          } > notes.md
+          gh release create "$TAG" --verify-tag --title "pihome $VERSION" --notes-file notes.md \
+            "dist/pihome-$VERSION.apk" "dist/pihome-$VERSION.apk.sha256"
