@@ -260,6 +260,19 @@
     <string name="tile_added">Плитку додано у швидкі налаштування.</string>
     <string name="tile_already_added">Плитка вже є у швидких налаштуваннях.</string>
     <string name="tile_add_failed">Android не додав плитку. Додайте її, редагуючи швидкі налаштування.</string>
+    <!-- Launcher shortcuts, behind a long press on the app's icon -->
+    <string name="shortcut_all_off_long">Вимкнути всі реле</string>
+    <!-- %1$s is the relay's name -->
+    <string name="shortcut_relay_long">Увімкнути чи вимкнути: %1$s</string>
+    <string name="shortcut_asking">Питаю хаб…</string>
+    <string name="shortcut_now_on">%1$s: увімкнено.</string>
+    <string name="shortcut_now_off">%1$s: вимкнено.</string>
+    <string name="shortcut_all_off_done">Усі реле вимкнено.</string>
+    <string name="shortcut_unsure">Зрозумілої відповіді не прийшло, тож «%1$s», можливо, вже перемкнено. Відкрийте застосунок, щоб перевірити.</string>
+    <string name="shortcut_all_off_unsure">Зрозумілої відповіді не прийшло, тож реле, можливо, вже вимкнені. Відкрийте застосунок, щоб перевірити.</string>
+    <string name="shortcut_gone">«%1$s» більше немає на хабі. Ярлик можна прибрати з головного екрана.</string>
+    <string name="shortcut_close">Закрити</string>
+    <string name="shortcut_open_app">Відкрити застосунок</string>
 
     <!-- Account -->
     <string name="account_title">Акаунт</string>

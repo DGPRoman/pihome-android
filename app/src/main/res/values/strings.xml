@@ -266,6 +266,19 @@
     <string name="tile_added">The tile is in Quick Settings.</string>
     <string name="tile_already_added">The tile is already in Quick Settings.</string>
     <string name="tile_add_failed">Android did not add the tile. Add it by editing Quick Settings.</string>
+    <!-- Launcher shortcuts, behind a long press on the app's icon -->
+    <string name="shortcut_all_off_long">Switch every relay off</string>
+    <!-- %1$s is the relay's name -->
+    <string name="shortcut_relay_long">Switch %1$s on or off</string>
+    <string name="shortcut_asking">Asking the hub…</string>
+    <string name="shortcut_now_on">%1$s is on.</string>
+    <string name="shortcut_now_off">%1$s is off.</string>
+    <string name="shortcut_all_off_done">Every relay is off.</string>
+    <string name="shortcut_unsure">No usable answer came back, so %1$s may have been switched. Open the app to see.</string>
+    <string name="shortcut_all_off_unsure">No usable answer came back, so the relays may already be off. Open the app to see.</string>
+    <string name="shortcut_gone">%1$s is no longer on the hub. Its shortcut can be removed from the home screen.</string>
+    <string name="shortcut_close">Close</string>
+    <string name="shortcut_open_app">Open the app</string>
 
     <!-- Account -->
     <string name="account_title">Account</string>

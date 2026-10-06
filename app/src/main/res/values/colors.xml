@@ -2,4 +2,6 @@
 <resources>
     <!-- The web client's accent, behind the launcher icon's power glyph. -->
     <color name="ic_launcher_background">#1B6EF3</color>
+    <!-- Behind the launcher shortcuts' glyphs, which are drawn in the accent. -->
+    <color name="shortcut_background">#FFFFFF</color>
 </resources>

@@ -34,6 +34,9 @@ class HouseViewModelTest {
     private var refused = 0
     private var forbidden = 0
 
+    /** Every list of relays the model reported, in order. */
+    private val reported = mutableListOf<List<Relay>>()
+
     private val porch = Relay("porch", "Porch light", on = false)
     private val gate = Relay("gate", "Gate light", on = true)
 
@@ -62,6 +65,7 @@ class HouseViewModelTest {
             clock = clock,
             onRefused = { refused++ },
             onForbidden = { forbidden++ },
+            onRelays = { reported += it },
         )
 
     private fun HouseViewModel.relay(id: String): RelayRow =
@@ -85,6 +89,22 @@ class HouseViewModelTest {
             assertEquals(emptyList<Any>(), house.devices.data)
             assertEquals(clock.now, house.sensors.asOf)
             assertFalse(house.rules.loading)
+        }
+
+    @Test
+    fun `every list of relays the hub sends is reported, for the launcher's shortcuts`() =
+        runTest {
+            val model = model()
+            model.refresh()
+            advanceUntilIdle()
+            assertEquals(listOf(listOf(porch, gate)), reported)
+
+            model.allOff()
+            advanceUntilIdle()
+
+            // The answer to all off, then the read that follows it.
+            val off = listOf(porch, gate.copy(on = false))
+            assertEquals(listOf(listOf(porch, gate), off, off), reported)
         }
 
     @Test

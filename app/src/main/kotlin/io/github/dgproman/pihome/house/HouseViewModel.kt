@@ -50,6 +50,8 @@ class HouseViewModel(
     private val onRefused: () -> Unit,
     /** The hub said this account may not do something. Its role may have changed. */
     private val onForbidden: () -> Unit,
+    /** The hub reported every relay, as it is now. */
+    private val onRelays: (List<Relay>) -> Unit = {},
 ) : ViewModel() {
     private val house = MutableStateFlow(House())
 
@@ -167,6 +169,7 @@ class HouseViewModel(
         viewModelScope.launch {
             try {
                 val reply = hub.setAllRelays(on = false)
+                onRelays(reply)
                 house.update { it.copy(allOff = AllOff()) }
                 updateRelays { list -> fromHub(reply, list) }
             } catch (e: HubException) {
@@ -213,6 +216,7 @@ class HouseViewModel(
                 if (pressesBegun != begunBefore || pressesUnderWay > 0) return@launch
                 answer.fold(
                     onSuccess = { list ->
+                        onRelays(list)
                         house.update { current ->
                             current.copy(
                                 relays = Section(fromHub(list, current.relays.data.orEmpty()), clock.instant()),

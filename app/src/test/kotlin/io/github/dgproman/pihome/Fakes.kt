@@ -17,6 +17,8 @@ import io.github.dgproman.pihome.hub.Sensor
 import io.github.dgproman.pihome.hub.Session
 import io.github.dgproman.pihome.hub.SessionToken
 import io.github.dgproman.pihome.hub.SignedIn
+import io.github.dgproman.pihome.quick.RelayShortcut
+import io.github.dgproman.pihome.quick.ShortcutShelf
 import io.github.dgproman.pihome.quick.TileChoice
 import io.github.dgproman.pihome.quick.TileChoices
 import kotlinx.coroutines.flow.Flow
@@ -187,6 +189,21 @@ class FakeTileChoices(
 
     override suspend fun choose(choice: TileChoice?) {
         held.value = choice
+    }
+}
+
+/** The launcher's shortcuts, kept in memory. */
+class FakeShortcutShelf : ShortcutShelf {
+    /** Android would not change them, as when an app changes them too often. */
+    var refuse = false
+    var shown: List<RelayShortcut> = emptyList()
+    var puts = 0
+
+    override fun put(shortcuts: List<RelayShortcut>): Boolean {
+        puts++
+        if (refuse) return false
+        shown = shortcuts
+        return true
     }
 }
 

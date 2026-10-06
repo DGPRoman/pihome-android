@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The shortcut that is always there. One per relay is added at run time, by
+     RelayShortcuts, as the app learns what relays the hub has. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:icon="@drawable/ic_shortcut_all_off"
+        android:shortcutId="all_off"
+        android:shortcutLongLabel="@string/shortcut_all_off_long"
+        android:shortcutShortLabel="@string/all_off">
+        <!-- The action and the class are ShortcutActivity's, which cannot be named from here. -->
+        <intent
+            android:action="io.github.dgproman.pihome.action.ALL_OFF"
+            android:targetClass="io.github.dgproman.pihome.quick.ShortcutActivity"
+            android:targetPackage="io.github.dgproman.pihome" />
+    </shortcut>
+</shortcuts>
