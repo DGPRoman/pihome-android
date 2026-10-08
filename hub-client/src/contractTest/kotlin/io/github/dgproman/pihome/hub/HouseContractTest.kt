@@ -23,7 +23,7 @@ class HouseContractTest {
             assertEquals(listOf("porch-light", "gate-light"), client.relays().map { it.id })
 
             val porch = client.setRelay("porch-light", on = true)
-            assertEquals(Relay("porch-light", "Porch light", on = true), porch)
+            assertEquals(Relay("porch-light", "Porch light", on = true, automatic = true), porch)
             assertTrue(client.relays().first { it.id == "porch-light" }.on)
 
             val all = client.setAllRelays(on = false)
@@ -76,6 +76,33 @@ class HouseContractTest {
                 client.rules(),
             )
 
+            client.logOut()
+        }
+
+    @Test
+    fun `a relay with its automation off is switched off and left alone by its rule`() =
+        runTest {
+            val client = hub.signIn()
+            client.setRelay("gate-light", on = true)
+
+            val off = client.setAutomatic("gate-light", automatic = false)
+            assertEquals(Relay("gate-light", "Gate light", on = false, automatic = false), off)
+
+            // The change to true that fires the rule, which now leaves the relay alone.
+            hub.pushReading("porch-motion", """{"motion":false}""")
+            hub.pushReading("porch-motion", """{"motion":true}""")
+            val gate = client.relays().first { it.id == "gate-light" }
+            assertFalse(gate.on)
+            assertEquals(false, gate.automatic)
+
+            // By hand it still switches, and that does not hand it back to the rules.
+            assertEquals(false, client.setRelay("gate-light", on = true).automatic)
+
+            // Handed back, it is switched by nothing until the rule fires again.
+            val on = client.setAutomatic("gate-light", automatic = true)
+            assertEquals(Relay("gate-light", "Gate light", on = true, automatic = true), on)
+
+            client.setRelay("gate-light", on = false)
             client.logOut()
         }
 
