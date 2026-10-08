@@ -52,6 +52,7 @@ class FakeHubs : Hubs {
     var relays: suspend () -> List<Relay> = { emptyList() }
     var setRelay: suspend (String, Boolean) -> Relay = { _, _ -> throw failure(HubErrorKind.NOT_FOUND) }
     var setAllRelays: suspend (Boolean) -> List<Relay> = { emptyList() }
+    var setAutomatic: suspend (String, Boolean) -> Relay = { _, _ -> throw failure(HubErrorKind.NOT_FOUND) }
     var sensors: suspend () -> List<Sensor> = { emptyList() }
     var devices: suspend () -> List<Device> = { emptyList() }
     var rules: suspend () -> List<AutomationRule> = { emptyList() }
@@ -116,6 +117,14 @@ class FakeHubs : Hubs {
             override suspend fun setAllRelays(on: Boolean): List<Relay> {
                 calls += "set all $on"
                 return this@FakeHubs.setAllRelays(on)
+            }
+
+            override suspend fun setAutomatic(
+                id: String,
+                automatic: Boolean,
+            ): Relay {
+                calls += "automatic $id $automatic"
+                return this@FakeHubs.setAutomatic(id, automatic)
             }
 
             override suspend fun sensors(): List<Sensor> {

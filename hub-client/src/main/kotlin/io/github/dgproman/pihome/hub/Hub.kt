@@ -78,6 +78,20 @@ interface Hub {
     /** Drive every relay to one state. Named rather than toggled, as for one. */
     suspend fun setAllRelays(on: Boolean): List<Relay>
 
+    /**
+     * Let the hub's automation switch one relay, or stop it from doing so, and
+     * return the relay as the hub reports it afterwards.
+     *
+     * Turning it off also switches the relay off and cancels any rule's timer on
+     * it, and lasts until it is turned back on. Turning it on switches nothing.
+     * [HubErrorKind.NOT_FOUND] from a hub too old to have the route, as well as
+     * for a relay it does not know.
+     */
+    suspend fun setAutomatic(
+        id: String,
+        automatic: Boolean,
+    ): Relay
+
     suspend fun sensors(): List<Sensor>
 
     suspend fun devices(): List<Device>

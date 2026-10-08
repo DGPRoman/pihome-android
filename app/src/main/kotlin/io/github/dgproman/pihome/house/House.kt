@@ -31,7 +31,10 @@ data class Section<out T>(
 data class RelayRow(
     /** As the hub last reported it, or as a press under way expects it to be. */
     val relay: Relay,
-    /** A press is under way. The switch takes no other until it ends. */
+    /**
+     * A press is under way, on the switch or on its automation. The relay takes no
+     * other press until it ends: turning automation off switches the relay too.
+     */
     val pending: Boolean = false,
     /**
      * Why the last press failed, until the next one. [unconfirmed] says whether
@@ -44,7 +47,18 @@ data class RelayRow(
      * until the hub is read again.
      */
     val unconfirmed: Boolean = false,
+    /** Which control the last press was on, so that [failure] is said beside it. */
+    val pressed: Control = Control.SWITCH,
 )
+
+/** What on a relay can be pressed. */
+enum class Control {
+    /** The relay's own switch. */
+    SWITCH,
+
+    /** Whether the hub's automation may switch it. */
+    AUTOMATION,
+}
 
 /** "All off", and what became of its last press. */
 data class AllOff(

@@ -105,6 +105,14 @@ class HubClient internal constructor(
             it.decode(RelayList.serializer()).relays
         }
 
+    override suspend fun setAutomatic(
+        id: String,
+        automatic: Boolean,
+    ): Relay =
+        write(Method.PUT, RELAYS + id + AUTOMATIC, buildJsonObject { put("automatic", automatic) }) {
+            it.decode(Relay.serializer())
+        }
+
     override suspend fun sensors(): List<Sensor> =
         read(listOf("v1", "sensors")) { reply ->
             reply.parse { text -> HubJson.decodeFromString(SensorList.serializer(), text).sensors.map(::sensorFrom) }
@@ -207,6 +215,7 @@ class HubClient internal constructor(
         val RELAYS = listOf("v1", "relays")
         val USERS = listOf("v1", "users")
         const val INVITATION = "invitation"
+        const val AUTOMATIC = "automatic"
         val RETRY_DELAYS = listOf(1.seconds, 2.seconds)
     }
 }

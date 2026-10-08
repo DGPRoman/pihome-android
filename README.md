@@ -12,7 +12,7 @@ home-screen widget and launcher shortcuts. Kotlin and Jetpack Compose.
 > hub by opening an invitation, or an admin logs in with a password. The app then shows the
 > relays as switches, what each sensor last reported and how long ago, whether the hub can
 > reach its devices, and the automation rules, read every ten seconds while the screen is
-> open. An admin adds people and hands them an invitation as a QR code or a link. A Quick
+> open, and an operator can tell the automation to leave a light alone. An admin adds people and hands them an invitation as a QR code or a link. A Quick
 > Settings tile switches one relay without opening the app, a long press on the app's icon
 > offers All lights, All off and one shortcut per relay, and a home-screen widget shows the
 > relays with their switches and what the sensors last reported. Releases are signed APKs; see
@@ -117,6 +117,16 @@ an answer that arrives late cannot undo something newer. When the answer is lost
 a refusal, the switch stays where it was pressed and says it is not sure, because the circuit
 may well have switched. A read of the relays that began before a press, or ends during one,
 is dropped, so a poll can never put a switch back. Every press ends with a read of its own.
+
+**Automation can be told to leave a light alone, and the light says so.** Each relay shows
+whether the hub's rules may switch it, from the `automatic` field the hub sends with every
+relay, and an operator turns that off and back on beside the switch, with
+`PUT /v1/relays/{id}/automatic`. Turning it off switches the light off on the hub as well and
+lasts until somebody turns it back on, with no timer, so the app asks first and says that the
+light goes off; turning it back on switches nothing, and is not asked. Until then the relay is
+marked beside its name, so that nobody forgets it. It is a press like the switch's: shown at
+once, put back on a refusal, in doubt when the answer is lost. A viewer sees the state with
+the button unavailable, and a hub too old to send the field shows nothing of it.
 
 **Polling costs nothing when nobody is looking.** The house is read every ten seconds while
 its screen is in view and not at all otherwise. The relays are read first, on their own,

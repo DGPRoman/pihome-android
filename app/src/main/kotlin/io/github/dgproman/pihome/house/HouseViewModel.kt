@@ -20,7 +20,8 @@ import java.time.Duration
 
 /**
  * The house as the hub reports it, read every [POLL_EVERY] while the screen is
- * in view, and the relays switched from it.
+ * in view, and the relays switched from it, and their automation turned off
+ * and on.
  *
  * Everything runs on the main thread, so the bookkeeping below needs no locks:
  * only one thing changes it at a time.
@@ -66,7 +67,7 @@ class HouseViewModel(
     /** Presses begun so far, so that a read can tell whether one began after it. */
     private var pressesBegun = 0L
 
-    /** Presses under way, single or all off. */
+    /** Presses under way: a switch, an automation, or all off. */
     private var pressesUnderWay = 0
 
     /** Read everything, then again every [POLL_EVERY], until cancelled: for as long as the screen is in view. */
@@ -140,6 +141,64 @@ class HouseViewModel(
 
                             // Back only if the switch still shows this press.
                             it.relay.on == on -> it.copy(relay = it.relay.copy(on = before), pending = false, failure = e.kind)
+
+                            else -> it.copy(pending = false, failure = e.kind)
+                        }
+                    }
+                }
+                failed(e.kind)
+            } finally {
+                pressesUnderWay--
+            }
+            readRelays()
+        }
+    }
+
+    /**
+     * Let the hub's automation switch one relay, or stop it from doing so.
+     *
+     * Turning it off switches the relay off on the hub as well, and cancels any
+     * rule's timer on it, so the row shows all of that at once; turning it on
+     * switches nothing. Otherwise it is a press like any other: shown at once,
+     * put back on a refusal, left in doubt when the answer is lost, and read back.
+     * A relay whose hub does not say whether it is automatic has nothing to press.
+     */
+    fun setAutomatic(
+        id: String,
+        automatic: Boolean,
+    ) {
+        val row =
+            house.value.relays.data
+                ?.find { it.relay.id == id } ?: return
+        if (stopped || row.pending || row.relay.automatic == null) return
+
+        begin()
+        val before = row.relay
+        val expected =
+            if (automatic) {
+                before.copy(automatic = true)
+            } else {
+                before.copy(automatic = false, on = false, holdExpiresAt = null)
+            }
+        updateRelays { rows ->
+            rows.map { if (it.relay.id == id) RelayRow(expected, pending = true, pressed = Control.AUTOMATION) else it }
+        }
+
+        viewModelScope.launch {
+            try {
+                val reply = hub.setAutomatic(id, automatic)
+                updateRelays { rows -> rows.map { if (it.relay.id == id) RelayRow(reply) else it } }
+            } catch (e: HubException) {
+                Log.i(TAG, "a relay's automation was not changed: ${e.kind}", e)
+                updateRelays { rows ->
+                    rows.map {
+                        when {
+                            it.relay.id != id -> it
+
+                            e.kind.mayHaveHappened -> it.copy(pending = false, failure = e.kind, unconfirmed = true)
+
+                            // Back only if the row still shows this press.
+                            it.relay.automatic == automatic -> it.copy(relay = before, pending = false, failure = e.kind)
 
                             else -> it.copy(pending = false, failure = e.kind)
                         }
@@ -237,8 +296,8 @@ class HouseViewModel(
     /**
      * The relays as the hub reported them, keeping what each row has to say about
      * its last press. Doubt is settled by the hub's answer; a refusal is kept, so
-     * the reason stays beside the switch until it is pressed again. A row with a
-     * press of its own under way is left to that press.
+     * the reason stays beside what was pressed until the relay is pressed again.
+     * A row with a press of its own under way is left to that press.
      */
     private fun fromHub(
         relays: List<Relay>,
@@ -250,7 +309,7 @@ class HouseViewModel(
             when {
                 row?.pending == true -> row
                 row?.unconfirmed == true -> RelayRow(relay)
-                else -> RelayRow(relay, failure = row?.failure)
+                else -> row?.copy(relay = relay) ?: RelayRow(relay)
             }
         }
     }

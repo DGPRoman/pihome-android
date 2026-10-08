@@ -10,6 +10,7 @@ import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 class HouseCallsTest {
     @get:Rule val hub = FakeHub()
@@ -63,6 +64,66 @@ class HouseCallsTest {
             assertEquals("PUT", request.method)
             assertEquals("/v1/relays", request.target)
             assertEquals(Json.parseToJsonElement("""{"on":false}"""), Json.parseToJsonElement(request.text))
+        }
+
+    @Test
+    fun `whether automation may switch a relay is read, and unknown from a hub that does not say`() =
+        runTest {
+            hub.answer(
+                200,
+                """
+                {"relays":[
+                  {"id":"porch-light","label":"Porch light","on":false,"hold_expires_at":null,"automatic":false},
+                  {"id":"gate-light","label":"Gate light","on":true,"hold_expires_at":null,"automatic":true},
+                  {"id":"shed-light","label":"Shed light","on":false,"hold_expires_at":null}
+                ]}
+                """,
+            )
+
+            val (porch, gate, shed) = hub.client().relays()
+
+            assertEquals(false, porch.automatic)
+            assertEquals(true, gate.automatic)
+            // An older hub has no such switch, which is not the same as one that is off.
+            assertNull(shed.automatic)
+        }
+
+    @Test
+    fun `automation is turned off for one relay, which the hub reports switched off`() =
+        runTest {
+            hub.answer(200, """{"id":"porch-light","label":"Porch light","on":false,"hold_expires_at":null,"automatic":false}""")
+
+            assertEquals(
+                Relay("porch-light", "Porch light", on = false, automatic = false),
+                hub.client().setAutomatic("porch-light", automatic = false),
+            )
+            val request = hub.takeRequest()
+            assertEquals("PUT", request.method)
+            assertEquals("/v1/relays/porch-light/automatic", request.target)
+            assertEquals(Json.parseToJsonElement("""{"automatic":false}"""), Json.parseToJsonElement(request.text))
+        }
+
+    @Test
+    fun `automation is turned back on for one relay`() =
+        runTest {
+            hub.answer(200, """{"id":"porch-light","label":"Porch light","on":false,"hold_expires_at":null,"automatic":true}""")
+
+            assertEquals(
+                Relay("porch-light", "Porch light", on = false, automatic = true),
+                hub.client().setAutomatic("porch-light", automatic = true),
+            )
+            assertEquals(Json.parseToJsonElement("""{"automatic":true}"""), Json.parseToJsonElement(hub.takeRequest().text))
+        }
+
+    @Test
+    fun `a hub without the route says not found, and is asked once`() =
+        runTest {
+            hub.answer(404, """{"detail":"Not Found"}""")
+
+            val failure = assertFailsWith<HubException> { hub.client().setAutomatic("porch-light", automatic = false) }
+
+            assertEquals(HubErrorKind.NOT_FOUND, failure.kind)
+            assertEquals(1, hub.requestCount)
         }
 
     @Test

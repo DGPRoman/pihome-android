@@ -151,6 +151,7 @@ class PeopleTest(
                     mayChange = true,
                     zone = ZoneOffset.UTC,
                     onSet = { _, _ -> },
+                    onAutomatic = { _, _ -> },
                     onAllOff = {},
                     onRetry = {},
                     onPull = {},
