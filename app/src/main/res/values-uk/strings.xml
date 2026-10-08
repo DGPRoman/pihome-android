@@ -86,6 +86,15 @@
     <string name="relay_forbidden">Ваш акаунт не може це змінювати.</string>
     <string name="relay_hold_off">Правило автоматики вимкне його о %1$s.</string>
     <string name="relay_hold_on">Правило автоматики увімкне його о %1$s.</string>
+    <string name="automation_off">Автоматику вимкнено</string>
+    <string name="automation_on">Автоматика працює</string>
+    <string name="automation_off_note">Ні правила, ні камера не вмикатимуть і не вимикатимуть його, доки автоматику не ввімкнуть знову.</string>
+    <string name="automation_turn_off">Вимкнути автоматику</string>
+    <string name="automation_turn_on">Увімкнути автоматику</string>
+    <string name="automation_off_title">Вимкнути автоматику для «%1$s»?</string>
+    <string name="automation_off_body">Світло вимкнеться зараз і саме вже не вмикатиметься, доки ви знову не ввімкнете автоматику. Вручну його можна перемикати й далі.</string>
+    <string name="automation_keep">Не вимикати</string>
+    <string name="automation_unconfirmed">Зрозумілої відповіді не прийшло, тож автоматику, можливо, вже перемкнено. Перевіряю на хабі.</string>
     <string name="read_only">Ваш акаунт може переглядати будинок, але не змінювати. Адміністратор може зробити його оператором.</string>
     <string name="all_off">Вимкнути все</string>
     <string name="all_off_unconfirmed">Зрозумілої відповіді не прийшло, тож реле, можливо, вже вимкнені. Перевіряю на хабі.</string>

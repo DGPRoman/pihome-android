@@ -57,6 +57,18 @@ class HouseViewModelTest {
             onHub = onHub.map { it.copy(on = on) }
             onHub
         }
+        // As the hub does it: off switches the relay off and drops any timer, on switches nothing.
+        hubs.setAutomatic = { id, automatic ->
+            onHub =
+                onHub.map {
+                    when {
+                        it.id != id -> it
+                        automatic -> it.copy(automatic = true)
+                        else -> it.copy(automatic = false, on = false, holdExpiresAt = null)
+                    }
+                }
+            onHub.first { it.id == id }
+        }
     }
 
     private fun model() =
@@ -360,6 +372,139 @@ class HouseViewModelTest {
                 listOf("relays", "sensors", "devices", "rules", "set porch true", "sensors", "devices", "rules", "relays"),
                 hubs.calls,
             )
+        }
+
+    @Test
+    fun `turning automation off shows the relay off and left alone at once, and is read back`() =
+        runTest {
+            val held = gate.copy(automatic = true, holdExpiresAt = clock.now.plusSeconds(60))
+            onHub = listOf(porch.copy(automatic = true), held)
+            val model = model()
+            model.refresh()
+            advanceUntilIdle()
+            val answer = CompletableDeferred<Unit>()
+            val write = hubs.setAutomatic
+            hubs.setAutomatic = { id, automatic ->
+                answer.await()
+                write(id, automatic)
+            }
+            hubs.calls.clear()
+
+            model.setAutomatic("gate", false)
+            runCurrent()
+            val off = gate.copy(on = false, automatic = false)
+            assertEquals(RelayRow(off, pending = true, pressed = Control.AUTOMATION), model.relay("gate"))
+
+            // The relay takes no other press until the hub answers, not even its switch.
+            model.setRelay("gate", true)
+            model.setAutomatic("gate", true)
+            answer.complete(Unit)
+            advanceUntilIdle()
+
+            assertEquals(RelayRow(off), model.relay("gate"))
+            assertEquals(listOf("automatic gate false", "relays"), hubs.calls)
+        }
+
+    @Test
+    fun `turning automation back on switches nothing`() =
+        runTest {
+            // Switched on by hand while automation was off.
+            onHub = listOf(porch.copy(automatic = true), gate.copy(automatic = false))
+            val model = model()
+            model.refresh()
+            advanceUntilIdle()
+
+            hubs.calls.clear()
+
+            model.setAutomatic("gate", true)
+            advanceUntilIdle()
+
+            assertEquals(RelayRow(gate.copy(automatic = true)), model.relay("gate"))
+            assertEquals(listOf("automatic gate true", "relays"), hubs.calls)
+        }
+
+    @Test
+    fun `a refused automation press puts the relay back as it was, and says why beside it`() =
+        runTest {
+            val held = gate.copy(automatic = true, holdExpiresAt = clock.now.plusSeconds(60))
+            onHub = listOf(porch.copy(automatic = true), held)
+            val model = model()
+            model.refresh()
+            advanceUntilIdle()
+            hubs.setAutomatic = { _, _ -> throw failure(HubErrorKind.SERVER) }
+
+            model.setAutomatic("gate", false)
+            advanceUntilIdle()
+
+            assertEquals(RelayRow(held, failure = HubErrorKind.SERVER, pressed = Control.AUTOMATION), model.relay("gate"))
+
+            model.refresh()
+            advanceUntilIdle()
+            assertEquals(RelayRow(held, failure = HubErrorKind.SERVER, pressed = Control.AUTOMATION), model.relay("gate"))
+        }
+
+    @Test
+    fun `an automation press whose answer was lost stays as pressed, in doubt, until the hub is read`() =
+        runTest {
+            onHub = listOf(porch.copy(automatic = true), gate.copy(automatic = true))
+            val model = model()
+            model.refresh()
+            advanceUntilIdle()
+            val write = hubs.setAutomatic
+            hubs.setAutomatic = { id, automatic ->
+                write(id, automatic)
+                throw failure(HubErrorKind.TIMEOUT)
+            }
+            val read = CompletableDeferred<Unit>()
+            hubs.relays = {
+                read.await()
+                onHub
+            }
+
+            model.setAutomatic("gate", false)
+            runCurrent()
+
+            val off = gate.copy(on = false, automatic = false)
+            assertEquals(
+                RelayRow(off, failure = HubErrorKind.TIMEOUT, unconfirmed = true, pressed = Control.AUTOMATION),
+                model.relay("gate"),
+            )
+
+            read.complete(Unit)
+            advanceUntilIdle()
+            assertEquals(RelayRow(off), model.relay("gate"))
+        }
+
+    @Test
+    fun `an automation press refused as not allowed has the session checked`() =
+        runTest {
+            onHub = listOf(porch.copy(automatic = true), gate.copy(automatic = true))
+            val model = model()
+            model.refresh()
+            advanceUntilIdle()
+            hubs.setAutomatic = { _, _ -> throw failure(HubErrorKind.FORBIDDEN) }
+
+            model.setAutomatic("gate", false)
+            advanceUntilIdle()
+
+            assertEquals(1, forbidden)
+            assertEquals(0, refused)
+            assertEquals(gate.copy(automatic = true), model.relay("gate").relay)
+        }
+
+    @Test
+    fun `a relay whose hub does not say whether it is automatic has no automation to press`() =
+        runTest {
+            val model = model()
+            model.refresh()
+            advanceUntilIdle()
+            hubs.calls.clear()
+
+            model.setAutomatic("gate", false)
+            advanceUntilIdle()
+
+            assertEquals(emptyList<String>(), hubs.calls)
+            assertEquals(RelayRow(gate), model.relay("gate"))
         }
 
     @Test

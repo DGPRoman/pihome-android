@@ -93,6 +93,17 @@
     <!-- %1$s is a time of day, such as 23:15 -->
     <string name="relay_hold_off">An automation rule switches it off at %1$s.</string>
     <string name="relay_hold_on">An automation rule switches it on at %1$s.</string>
+    <!-- Whether the hub's automation may switch a relay. The first is also a mark beside its name while it may not -->
+    <string name="automation_off">Automation off</string>
+    <string name="automation_on">Automation on</string>
+    <string name="automation_off_note">Nothing automatic switches it on or off until automation is turned back on.</string>
+    <string name="automation_turn_off">Turn automation off</string>
+    <string name="automation_turn_on">Turn automation on</string>
+    <!-- Asked before automation is turned off. %1$s is the relay's name -->
+    <string name="automation_off_title">Turn automation off for %1$s?</string>
+    <string name="automation_off_body">The light switches off now, and nothing automatic switches it on again until you turn automation back on. You can still switch it yourself.</string>
+    <string name="automation_keep">Leave it on</string>
+    <string name="automation_unconfirmed">No usable answer came back, so automation may already have changed. Checking with the hub.</string>
     <string name="read_only">Your account can see the house but not change it. An admin can make it an operator.</string>
     <string name="all_off">All off</string>
     <string name="all_off_unconfirmed">No usable answer came back, so the relays may already be off. Checking with the hub.</string>

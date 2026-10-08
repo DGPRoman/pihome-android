@@ -10,11 +10,14 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -24,6 +27,7 @@ import io.github.dgproman.pihome.R
 import io.github.dgproman.pihome.TestClock
 import io.github.dgproman.pihome.failure
 import io.github.dgproman.pihome.house.AllOff
+import io.github.dgproman.pihome.house.Control
 import io.github.dgproman.pihome.house.House
 import io.github.dgproman.pihome.house.HouseViewModel
 import io.github.dgproman.pihome.house.RelayRow
@@ -106,6 +110,9 @@ class HouseTest(
         count: Int,
     ): String = compose.activity.resources.getQuantityString(id, count, count)
 
+    /** Every automation press the screen passed on, as `id automatic`. */
+    private val automationPresses = mutableListOf<String>()
+
     private fun show(
         house: House,
         mayChange: Boolean = true,
@@ -117,6 +124,7 @@ class HouseTest(
                     mayChange = mayChange,
                     zone = ZoneOffset.UTC,
                     onSet = { _, _ -> },
+                    onAutomatic = { id, automatic -> automationPresses += "$id $automatic" },
                     onAllOff = {},
                     onRetry = {},
                     onPull = {},
@@ -135,6 +143,12 @@ class HouseTest(
 
     private fun switchFor(relay: Relay) =
         compose.onNode(hasText(relay.label) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
+
+    private fun button(text: String) = compose.onNode(hasText(text) and hasClickAction() and !hasAnyAncestor(isDialog()))
+
+    private fun dialogButton(text: String) = compose.onNode(hasText(text) and hasClickAction() and hasAnyAncestor(isDialog()))
+
+    private fun relays(vararg relays: Relay) = everything.copy(relays = Section(relays.map { RelayRow(it) }, now))
 
     @Test
     fun `each part says it is reading until the hub answers`() {
@@ -224,6 +238,67 @@ class HouseTest(
         // As the language writes a time: 12:15 PM in English, 12:15 in Ukrainian.
         seen(text(R.string.relay_hold_off, "").removeSuffix("."), substring = true)
         seen("12:15", substring = true)
+    }
+
+    @Test
+    fun `a relay says automation is on, and turning it off asks first, saying the light goes off too`() {
+        show(relays(porch.copy(automatic = true)))
+
+        seen(text(R.string.automation_on))
+        compose.onAllNodes(hasText(text(R.string.automation_off))).assertCountEquals(0)
+        button(text(R.string.automation_turn_off)).performScrollTo().performClick()
+        compose.onNodeWithText(text(R.string.automation_off_title, porch.label)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.automation_off_body)).assertIsDisplayed()
+        dialogButton(text(R.string.automation_keep)).performClick()
+        assertEquals(emptyList<String>(), automationPresses)
+
+        button(text(R.string.automation_turn_off)).performScrollTo().performClick()
+        dialogButton(text(R.string.automation_turn_off)).performClick()
+        assertEquals(listOf("porch false"), automationPresses)
+    }
+
+    @Test
+    fun `a relay automation leaves alone is marked beside its name, and turns back on without asking`() {
+        show(relays(gate.copy(automatic = false)))
+
+        // Part of what the switch says of itself, so a screen reader says it with the name.
+        switchFor(gate).assert(hasText(text(R.string.automation_off)))
+        seen(text(R.string.automation_off_note))
+        button(text(R.string.automation_turn_on)).performScrollTo().performClick()
+
+        compose.onAllNodes(isDialog()).assertCountEquals(0)
+        assertEquals(listOf("gate true"), automationPresses)
+    }
+
+    @Test
+    fun `a hub that does not say whether a relay is automatic shows nothing of it`() {
+        show(relays(porch, gate))
+
+        listOf(R.string.automation_on, R.string.automation_off, R.string.automation_turn_off, R.string.automation_turn_on).forEach {
+            compose.onAllNodes(hasText(text(it))).assertCountEquals(0)
+        }
+    }
+
+    @Test
+    fun `a viewer sees whether automation is on, and cannot change it`() {
+        show(relays(porch.copy(automatic = true), gate.copy(automatic = false)), mayChange = false)
+
+        seen(text(R.string.automation_on))
+        switchFor(gate).assert(hasText(text(R.string.automation_off)))
+        button(text(R.string.automation_turn_off)).assertIsNotEnabled()
+        button(text(R.string.automation_turn_on)).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `an automation press in doubt says so beside it`() {
+        val row = RelayRow(gate.copy(automatic = false), failure = HubErrorKind.TIMEOUT, unconfirmed = true, pressed = Control.AUTOMATION)
+        show(everything.copy(relays = Section(listOf(row), now)))
+
+        compose
+            .onNode(hasText(text(R.string.automation_unconfirmed)))
+            .performScrollTo()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+        compose.onAllNodes(hasText(text(R.string.relay_unconfirmed))).assertCountEquals(0)
     }
 
     @Test

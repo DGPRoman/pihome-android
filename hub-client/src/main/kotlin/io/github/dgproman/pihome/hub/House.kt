@@ -21,6 +21,13 @@ data class Relay(
      * reply to one always has null here.
      */
     @SerialName("hold_expires_at") val holdExpiresAt: Instant? = null,
+    /**
+     * Whether the hub's automation may switch this relay. False once a person has
+     * turned it off, until somebody turns it back on: no rule touches the relay in
+     * between, though a person still can. Null from a hub too old to send it,
+     * which has no such switch to offer.
+     */
+    val automatic: Boolean? = null,
 )
 
 /**

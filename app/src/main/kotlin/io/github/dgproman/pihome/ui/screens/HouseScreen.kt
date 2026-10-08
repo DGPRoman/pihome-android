@@ -60,6 +60,7 @@ fun HouseScreen(
         mayChange = mayChange,
         zone = zone,
         onSet = model::setRelay,
+        onAutomatic = model::setAutomatic,
         onAllOff = model::allOff,
         onRetry = { model.refresh() },
         onPull = model::pull,
@@ -75,6 +76,7 @@ fun HouseContent(
     mayChange: Boolean,
     zone: ZoneId,
     onSet: (String, Boolean) -> Unit,
+    onAutomatic: (String, Boolean) -> Unit,
     onAllOff: () -> Unit,
     onRetry: () -> Unit,
     onPull: () -> Unit,
@@ -105,7 +107,7 @@ fun HouseContent(
                 isEmpty = { it.isEmpty() },
                 onRetry = onRetry,
                 action = { AllOffButton(house.relays.data, house.allOff, mayChange, onAllOff) },
-            ) { rows -> RelayList(rows, house.allOff, mayChange, zone, onSet) }
+            ) { rows -> RelayList(rows, house.allOff, mayChange, zone, onSet, onAutomatic) }
 
             HouseSection(
                 title = stringResource(R.string.sensors_title),
@@ -154,8 +156,8 @@ private fun HousePreview() {
             relays =
                 Section(
                     listOf(
-                        RelayRow(Relay("porch", "Porch light", on = true, holdExpiresAt = now.plusSeconds(90))),
-                        RelayRow(Relay("gate", "Gate light", on = false)),
+                        RelayRow(Relay("porch", "Porch light", on = true, holdExpiresAt = now.plusSeconds(90), automatic = true)),
+                        RelayRow(Relay("gate", "Gate light", on = false, automatic = false)),
                     ),
                     now,
                 ),
@@ -192,10 +194,16 @@ private fun HousePreview() {
                 ),
         )
     PihomeTheme {
-        HouseContent(house, mayChange = true, zone = ZoneId.of("UTC"), onSet = {
-            _,
-            _,
-            ->
-        }, onAllOff = {}, onRetry = {}, onPull = {}, onAccount = {})
+        HouseContent(
+            house,
+            mayChange = true,
+            zone = ZoneId.of("UTC"),
+            onSet = { _, _ -> },
+            onAutomatic = { _, _ -> },
+            onAllOff = {},
+            onRetry = {},
+            onPull = {},
+            onAccount = {},
+        )
     }
 }
