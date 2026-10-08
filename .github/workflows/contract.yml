@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  HUB_REF: ee871e9e705d72f502d091f33acd96585cc70120
+  HUB_REF: 27efadd981b8f5d1fbd39121ce5f0861b905cd77
 
 jobs:
   contract:
